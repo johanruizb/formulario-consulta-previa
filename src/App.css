@@ -1,0 +1,34 @@
+.MuiSkeleton-root {
+    transform-origin: 0 !important;
+    transform: none !important;
+}
+
+/* Para WebKit (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 0.3em;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+}
+
+/* Para Edge */
+/* Estilos del track */
+*::-ms-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+/* Estilos del thumb */
+*::-ms-scrollbar-thumb {
+    background-color: #cccccc;
+}
+
+/* Estilos para Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #cccccc #f1f1f1;
+}
