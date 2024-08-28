@@ -1,53 +1,118 @@
-import { Typography } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import Stack from "@mui/material/Stack";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Skeleton from "@mui/material/Skeleton";
+import Typography from "@mui/material/Typography";
 import { useRenderCount } from "@uidotdev/usehooks";
 import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
+import SelectPlaceHolder from "./SelectPlaceHolder";
+import { isDevelopment } from "../../utils/isProduction";
+import dayjs from "dayjs";
+import getTimeout from "../../utils/timeout";
 
-const Counter = ({ renderCount }) => {
+const Counter = ({ renderCount, className }) => {
     return (
-        <Typography
-            variant="caption"
+        <Stack
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="center"
             sx={{
                 pr: "14px",
             }}
         >
-            {renderCount}
-        </Typography>
+            <ArrowDropDownIcon
+                className={className}
+                sx={{
+                    position: "unset !important",
+                }}
+            />
+            {isDevelopment && (
+                <Typography variant="caption">{renderCount}</Typography>
+            )}
+        </Stack>
     );
 };
 
 Counter.propTypes = {
     renderCount: PropTypes.number.isRequired,
+    className: PropTypes.string,
 };
 
-export default function AsyncSelect({ slotProps }) {
+export default function AsyncSelect({ slotProps, fetchProps }) {
     const renderCount = useRenderCount();
 
     const { control } = useFormContext();
     const { controller: controllerProps, field: fieldProps } = slotProps;
 
+    const [options, setOptions] = useState();
+    const { url: fetchURL, options: fetchOptions } = fetchProps;
+
+    useEffect(() => {
+        if (fetchURL) {
+            const start = dayjs();
+            fetch(fetchURL, fetchOptions).then((response) => {
+                const timeout = getTimeout(start);
+                setTimeout(() => {
+                    response.json().then(setOptions);
+                }, timeout);
+            });
+        }
+    }, [fetchURL, fetchOptions]);
+
+    if (fetchURL === null)
+        return (
+            <SelectPlaceHolder
+                slotProps={slotProps}
+                renderCount={renderCount}
+            />
+        );
+
     return (
         <Controller
             control={control}
             render={({ field, fieldState: { error } }) => {
-                return (
-                    <FormControl fullWidth error={Boolean(error?.type || error?.types)}>
-                        <InputLabel variant="outlined">{fieldProps.label}{fieldProps.required ? " *" : ""}</InputLabel>
+                return options ? (
+                    <FormControl
+                        fullWidth
+                        error={Boolean(error?.type || error?.types)}
+                    >
+                        <InputLabel variant="outlined">
+                            {fieldProps.label}
+                            {fieldProps.required ? " *" : ""}
+                        </InputLabel>
                         <Select
                             {...field}
                             {...fieldProps}
-                            IconComponent={() => Counter({ renderCount })}
+                            IconComponent={(props) =>
+                                Counter({ renderCount, ...props })
+                            }
                         >
-                            <MenuItem value={1}>(CC) Cédula de Ciudadanía</MenuItem>
-                            <MenuItem value={2}>(TI) Tarjeta de Identidad</MenuItem>
+                            {options?.map((option) => (
+                                <MenuItem
+                                    key={option.id}
+                                    value={option.iso2 ?? option.id}
+                                >
+                                    {option.name}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{error?.message ?? " "}</FormHelperText>
                     </FormControl>
+                ) : (
+                    <Skeleton
+                        sx={{
+                            height: 59,
+                            borderRadius: 1,
+                            width: "100%",
+                            mb: "19.91px",
+                        }}
+                    />
                 );
             }}
             {...controllerProps}
@@ -59,5 +124,9 @@ AsyncSelect.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
         field: PropTypes.object.isRequired,
+    }).isRequired,
+    fetchProps: PropTypes.shape({
+        url: PropTypes.string,
+        options: PropTypes.object,
     }).isRequired,
 };
