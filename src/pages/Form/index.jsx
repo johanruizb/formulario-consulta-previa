@@ -70,7 +70,7 @@ function useSaveForm() {
                 JSON.stringify({
                     values,
                     expires: dayjs().add(1, "hour").format(),
-                }),
+                })
             );
         };
 
@@ -117,7 +117,7 @@ export default function FullScreenDialog() {
             {
                 keepValues: false,
                 keepDefaultValues: false,
-            },
+            }
         );
         localStorage.removeItem("form");
         window.location.reload();
@@ -144,13 +144,13 @@ export default function FullScreenDialog() {
                                 onOpenAlert(
                                     data.message ||
                                         "Algo ha fallado al registrarse",
-                                    "error",
+                                    "error"
                                 );
                             })
                             .catch(() => {
                                 onOpenAlert(
                                     "Algo ha fallado al registrarse",
-                                    "error",
+                                    "error"
                                 );
                             })
                             .finally(() => {
@@ -246,12 +246,12 @@ export default function FullScreenDialog() {
                                                 required: true,
                                                 onChange: (
                                                     e,
-                                                    onChangeController,
+                                                    onChangeController
                                                 ) =>
                                                     onChangeController(
                                                         (
                                                             e.target.value || ""
-                                                        ).toUpperCase(),
+                                                        ).toUpperCase()
                                                     ),
                                             },
                                         }}
@@ -281,12 +281,12 @@ export default function FullScreenDialog() {
                                                 required: true,
                                                 onChange: (
                                                     e,
-                                                    onChangeController,
+                                                    onChangeController
                                                 ) =>
                                                     onChangeController(
                                                         (
                                                             e.target.value || ""
-                                                        ).toUpperCase(),
+                                                        ).toUpperCase()
                                                     ),
                                             },
                                         }}
@@ -541,12 +541,12 @@ export default function FullScreenDialog() {
                                                 label: "Nombre de la entidad u organización que representa",
                                                 onChange: (
                                                     e,
-                                                    onChangeController,
+                                                    onChangeController
                                                 ) =>
                                                     onChangeController(
                                                         (
                                                             e.target.value || ""
-                                                        ).toUpperCase(),
+                                                        ).toUpperCase()
                                                     ),
                                             },
                                         }}
@@ -638,17 +638,9 @@ export default function FullScreenDialog() {
                                             controller: {
                                                 name: "whatsappNumber",
                                                 defaultValue: "",
-                                                // rules: {
-                                                //     required: {
-                                                //         value: true,
-                                                //         message:
-                                                //             "Este campo no puede estar vacio",
-                                                //     },
-                                                // },
                                             },
                                             field: {
                                                 label: "Número de WhatsApp",
-                                                // required: true,
                                             },
                                         }}
                                     />
