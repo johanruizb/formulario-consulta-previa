@@ -1,4 +1,5 @@
 import { useTheme } from "@emotion/react";
+import { Turnstile } from "@marsidev/react-turnstile";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import SaveIcon from "@mui/icons-material/Save";
 import Box from "@mui/material/Box";
@@ -22,13 +23,15 @@ import {
 } from "react-hook-form";
 import { FORM_FIELDS_LABELS, URI } from "../../components/constant";
 import AsyncSelect from "../../components/Fields/AsyncSelect";
-import DateField from "../../components/Fields/DateField";
+import BirthdayField from "../../components/Fields/BirthdayField";
+import CheckboxField from "../../components/Fields/ChecboxField";
 import PhoneNumber from "../../components/Fields/PhoneNumber";
 import BasicSelect from "../../components/Fields/Select";
 import BasicTextField from "../../components/Fields/TextField";
 import CityBirth from "../../components/Form/CityBirth";
 import CityLocation from "../../components/Form/CityLocation";
 import DocumentImage from "../../components/Form/DocumentImage";
+import OtherConnectivity from "../../components/Form/OtherConnectivity";
 import OtherGender from "../../components/Form/OtherGender";
 import StateBirth from "../../components/Form/StateBirth";
 import SimpleAlert from "../../components/SimpleAlert";
@@ -36,8 +39,6 @@ import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
-import { Turnstile } from "@marsidev/react-turnstile";
-import CheckboxField from "../../components/Fields/ChecboxField";
 
 // import CityExpedition from "../../components/Form/CityExpedition";
 // import StateExpedition from "../../components/Form/StateExpedition";
@@ -70,7 +71,7 @@ function useSaveForm() {
                 JSON.stringify({
                     values,
                     expires: dayjs().add(1, "hour").format(),
-                })
+                }),
             );
         };
 
@@ -117,7 +118,7 @@ export default function FullScreenDialog() {
             {
                 keepValues: false,
                 keepDefaultValues: false,
-            }
+            },
         );
         localStorage.removeItem("form");
         window.location.reload();
@@ -144,13 +145,13 @@ export default function FullScreenDialog() {
                                 onOpenAlert(
                                     data.message ||
                                         "Algo ha fallado al registrarse",
-                                    "error"
+                                    "error",
                                 );
                             })
                             .catch(() => {
                                 onOpenAlert(
                                     "Algo ha fallado al registrarse",
-                                    "error"
+                                    "error",
                                 );
                             })
                             .finally(() => {
@@ -246,12 +247,12 @@ export default function FullScreenDialog() {
                                                 required: true,
                                                 onChange: (
                                                     e,
-                                                    onChangeController
+                                                    onChangeController,
                                                 ) =>
                                                     onChangeController(
                                                         (
                                                             e.target.value || ""
-                                                        ).toUpperCase()
+                                                        ).toUpperCase(),
                                                     ),
                                             },
                                         }}
@@ -281,12 +282,12 @@ export default function FullScreenDialog() {
                                                 required: true,
                                                 onChange: (
                                                     e,
-                                                    onChangeController
+                                                    onChangeController,
                                                 ) =>
                                                     onChangeController(
                                                         (
                                                             e.target.value || ""
-                                                        ).toUpperCase()
+                                                        ).toUpperCase(),
                                                     ),
                                             },
                                         }}
@@ -313,12 +314,16 @@ export default function FullScreenDialog() {
                                                         label: "(CC) Cédula de ciudadanía",
                                                     },
                                                     {
-                                                        value: 3,
+                                                        value: 2,
                                                         label: "(CE) Cédula de extranjería",
                                                     },
                                                     {
-                                                        value: 2,
-                                                        label: "(TI) Tarjeta de identidad",
+                                                        value: 3,
+                                                        label: "(PA) Pasaporte",
+                                                    },
+                                                    {
+                                                        value: 4,
+                                                        label: "(PR) Permiso de residencia",
                                                     },
                                                 ],
                                                 label: "Tipo de documento de identidad",
@@ -376,7 +381,7 @@ export default function FullScreenDialog() {
                                     <DocumentImage />
                                 </Grid>
                                 <Grid item xs={12} md={6}>
-                                    <DateField
+                                    <BirthdayField
                                         slotProps={{
                                             controller: {
                                                 name: "birthdate",
@@ -541,12 +546,12 @@ export default function FullScreenDialog() {
                                                 label: "Nombre de la entidad u organización que representa",
                                                 onChange: (
                                                     e,
-                                                    onChangeController
+                                                    onChangeController,
                                                 ) =>
                                                     onChangeController(
                                                         (
                                                             e.target.value || ""
-                                                        ).toUpperCase()
+                                                        ).toUpperCase(),
                                                     ),
                                             },
                                         }}
@@ -805,27 +810,32 @@ export default function FullScreenDialog() {
                                                 options: [
                                                     {
                                                         value: "nula",
-                                                        label: "NULA",
+                                                        label: "Sin conexión",
                                                     },
                                                     {
                                                         value: "baja",
-                                                        label: "BAJA",
+                                                        label: "Solo con wifi público",
                                                     },
                                                     {
                                                         value: "media",
-                                                        label: "MEDIA",
+                                                        label: "Por intervalos de tiempo con dificultad",
                                                     },
                                                     {
                                                         value: "plena",
-                                                        label: "PLENA",
+                                                        label: "Todo el día sin dificultad",
+                                                    },
+                                                    {
+                                                        value: "otra",
+                                                        label: "Otra (especificar)",
                                                     },
                                                 ],
-                                                label: "Conectividad",
+                                                label: "Acceso a conexión de internet",
                                                 required: true,
                                             },
                                         }}
                                     />
                                 </Grid>
+                                <OtherConnectivity />
                                 <Grid
                                     item
                                     xs={12}
@@ -841,7 +851,7 @@ export default function FullScreenDialog() {
                                                     required: {
                                                         value: true,
                                                         message:
-                                                            "Es necesario marcar la casilla",
+                                                            "Es necesario marcar la casilla para continuar",
                                                     },
                                                 },
                                             },
