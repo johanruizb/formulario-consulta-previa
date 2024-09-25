@@ -7,7 +7,9 @@ import FormHelperText from "@mui/material/FormHelperText";
 import FormLabel from "@mui/material/FormLabel";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
+
 import PropTypes from "prop-types";
+
 import { Controller, useFormContext } from "react-hook-form";
 
 export default function CheckboxField({ slotProps }) {
@@ -50,7 +52,13 @@ export default function CheckboxField({ slotProps }) {
                             }
                         />
                     </FormGroup>
-                    <FormHelperText>{error?.message ?? " "}</FormHelperText>
+                    <FormHelperText
+                        sx={{
+                            textAlign: "center",
+                        }}
+                    >
+                        {error?.message ?? " "}
+                    </FormHelperText>
                 </FormControl>
             )}
             {...controllerProps}
