@@ -39,6 +39,8 @@ import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
+import Link from "@mui/material/Link";
+import LargeQuestion from "../../components/Form/LargeQuestion";
 
 // import CityExpedition from "../../components/Form/CityExpedition";
 // import StateExpedition from "../../components/Form/StateExpedition";
@@ -749,7 +751,7 @@ export default function FullScreenDialog() {
                                     <BasicSelect
                                         slotProps={{
                                             controller: {
-                                                name: "stratum",
+                                                name: "zona",
                                                 defaultValue: "",
                                                 rules: {
                                                     required: {
@@ -762,31 +764,15 @@ export default function FullScreenDialog() {
                                             field: {
                                                 options: [
                                                     {
-                                                        value: 1,
-                                                        label: "Estrato 1",
+                                                        value: "rural",
+                                                        label: "Rural",
                                                     },
                                                     {
-                                                        value: 2,
-                                                        label: "Estrato 2",
-                                                    },
-                                                    {
-                                                        value: 3,
-                                                        label: "Estrato 3",
-                                                    },
-                                                    {
-                                                        value: 4,
-                                                        label: "Estrato 4",
-                                                    },
-                                                    {
-                                                        value: 5,
-                                                        label: "Estrato 5",
-                                                    },
-                                                    {
-                                                        value: 6,
-                                                        label: "Estrato 6",
+                                                        value: "urbana",
+                                                        label: "Urbana",
                                                     },
                                                 ],
-                                                label: "Estrato",
+                                                label: "Zona de residencia",
                                                 required: true,
                                             },
                                         }}
@@ -836,6 +822,23 @@ export default function FullScreenDialog() {
                                     />
                                 </Grid>
                                 <OtherConnectivity />
+                                <Grid item xs={12}>
+                                    <LargeQuestion
+                                        slotProps={{
+                                            controller: {
+                                                name: "continuar_curso_120",
+                                                defaultValue: "",
+                                                rules: {
+                                                    required: {
+                                                        value: true,
+                                                        message:
+                                                            "Es necesario responder la pregunta para continuar",
+                                                    },
+                                                },
+                                            },
+                                        }}
+                                    />
+                                </Grid>
                                 <Grid
                                     item
                                     xs={12}
@@ -846,7 +849,6 @@ export default function FullScreenDialog() {
                                         slotProps={{
                                             controller: {
                                                 name: "processingOfPersonalData",
-                                                // defaultValue: ,
                                                 rules: {
                                                     required: {
                                                         value: true,
@@ -886,6 +888,11 @@ export default function FullScreenDialog() {
                         </Box>
                         <Save />
                     </FormProvider>
+                    <Stack alignItems="center">
+                        <Link href="https://www.freepik.es/vector-gratis/icono-perfil-plano-dibujado-mano_17539369.htm#fromView=search&page=1&position=29&uuid=fa87b794-1c3a-486d-b7a0-5aa2d7a92f9e">
+                            Imagen de freepik
+                        </Link>
+                    </Stack>
                 </DialogContent>
                 <DialogActions
                     sx={{
