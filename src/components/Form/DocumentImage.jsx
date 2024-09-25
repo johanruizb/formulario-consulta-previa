@@ -9,34 +9,31 @@ import PropTypes from "prop-types";
 import { forwardRef, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useController, useFormContext } from "react-hook-form";
+
 import Reverso from "../../assets/reverso.png";
 import Frente from "../../assets/frente.png";
 
 const DocumentField = forwardRef(function DocumentField(props, ref) {
     const low = false;
     const [url, setUrl] = useState();
-    const { getInputProps, placeholder } = props;
+    const { getInputProps, placeholder, image } = props;
 
     useEffect(() => {
-        if (low && props.image) {
-            setUrl(props.image.name);
-        } else if (props.image) {
+        if (low && image) {
+            setUrl(image.name);
+        } else if (image) {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setUrl(reader.result);
             };
-            reader.readAsDataURL(props.image);
+            reader.readAsDataURL(image);
         }
 
         return () => {
             // cleanup URL object
             if (url) URL.revokeObjectURL(url);
         };
-    }, [low, props.image, url]);
-
-    useEffect(() => {
-        URL.revokeObjectURL(url);
-    }, [url]);
+    }, [low, image, url]);
 
     return (
         <Paper
