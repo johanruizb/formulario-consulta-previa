@@ -1,6 +1,8 @@
-import { forwardRef } from "react";
-import { NumericFormat } from "react-number-format";
 import PropTypes from "prop-types";
+
+import { forwardRef } from "react";
+
+import { NumericFormat } from "react-number-format";
 
 const NumericFormatCustom = forwardRef(
     function NumericFormatCustom(props, ref) {
