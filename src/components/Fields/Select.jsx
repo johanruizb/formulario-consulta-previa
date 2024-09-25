@@ -1,14 +1,18 @@
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import Stack from "@mui/material/Stack";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+
 import { useRenderCount } from "@uidotdev/usehooks";
+
 import PropTypes from "prop-types";
+
 import { Controller, useFormContext } from "react-hook-form";
+
 import { isDevelopment } from "../../utils/isProduction";
 
 const Counter = ({ renderCount, className }) => {
