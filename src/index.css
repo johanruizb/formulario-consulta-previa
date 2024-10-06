@@ -1,0 +1,4 @@
+.MuiInputBase-input:-webkit-autofill {
+    -webkit-box-shadow: unset !important;
+    -webkit-text-fill-color: unset !important;
+}
