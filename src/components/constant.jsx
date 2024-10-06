@@ -49,13 +49,13 @@ const COLOMBIA = {
 };
 
 const URI = {
-    FORM: isProduction ? "" : "http://localhost:3000",
+    FORM: isProduction ? "" : `http://${window.location.hostname}:3000`,
     API: isProduction
         ? "https://panel.consultaprevia.co/api/v1"
-        : "http://localhost:8080/api/v1",
+        : `http://${window.location.hostname}:8080/api/v1`,
     SERVER: isProduction
         ? "https://panel.consultaprevia.co"
-        : "http://localhost:8080",
+        : `http://${window.location.hostname}:8080`,
 };
 
 const FORM_FIELDS_LABELS = {
