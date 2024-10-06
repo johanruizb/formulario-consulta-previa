@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
 
 function LargeQuestion({ slotProps }) {
     const { control } = useFormContext();
-    const { controller: controllerProps } = slotProps;
+    const { controller: controllerProps, formRef } = slotProps;
 
     return (
         <Controller
@@ -45,6 +45,10 @@ function LargeQuestion({ slotProps }) {
                         value={field.value}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
+                        ref={(el) => {
+                            if (formRef) formRef.current[field.name] = el;
+                            field.ref(el);
+                        }}
                     >
                         <FormControlLabel
                             value="si"
@@ -76,6 +80,7 @@ function LargeQuestion({ slotProps }) {
 LargeQuestion.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
+        formRef: PropTypes.any,
     }).isRequired,
 };
 

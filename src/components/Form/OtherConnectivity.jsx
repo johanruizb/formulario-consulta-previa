@@ -1,8 +1,10 @@
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import BasicTextField from "../Fields/TextField";
 import { useFormContext, useWatch } from "react-hook-form";
 
-function OtherConnectivity() {
+import PropTypes from "prop-types";
+
+function OtherConnectivity({ formRef }) {
     const { control } = useFormContext();
 
     const gender = useWatch({
@@ -12,7 +14,12 @@ function OtherConnectivity() {
 
     return (
         gender === "otra" && (
-            <Grid item xs={12} md={6}>
+            <Grid
+                size={{
+                    xs: 12,
+                    md: 6,
+                }}
+            >
                 <BasicTextField
                     slotProps={{
                         controller: {
@@ -22,6 +29,11 @@ function OtherConnectivity() {
                                 required: {
                                     value: true,
                                     message: "Este campo no puede estar vacio",
+                                },
+                                maxLength: {
+                                    value: 100,
+                                    message:
+                                        "Este campo no puede tener más de 100 caracteres",
                                 },
                             },
                         },
@@ -33,11 +45,16 @@ function OtherConnectivity() {
                                     (e.target.value || "").toUpperCase(),
                                 ),
                         },
+                        formRef,
                     }}
                 />
             </Grid>
         )
     );
 }
+
+OtherConnectivity.propTypes = {
+    formRef: PropTypes.any,
+};
 
 export default OtherConnectivity;

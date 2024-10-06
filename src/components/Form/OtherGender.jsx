@@ -1,8 +1,10 @@
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import BasicTextField from "../Fields/TextField";
 import { useFormContext, useWatch } from "react-hook-form";
 
-function OtherGender() {
+import PropTypes from "prop-types";
+
+function OtherGender({ formRef }) {
     const { control } = useFormContext();
 
     const gender = useWatch({
@@ -13,7 +15,12 @@ function OtherGender() {
 
     return (
         gender === 0 && (
-            <Grid item xs={12} md={6}>
+            <Grid
+                size={{
+                    xs: 12,
+                    md: 6,
+                }}
+            >
                 <BasicTextField
                     slotProps={{
                         controller: {
@@ -34,11 +41,16 @@ function OtherGender() {
                                     (e.target.value || "").toUpperCase(),
                                 ),
                         },
+                        formRef,
                     }}
                 />
             </Grid>
         )
     );
 }
+
+OtherGender.propTypes = {
+    formRef: PropTypes.any,
+};
 
 export default OtherGender;
