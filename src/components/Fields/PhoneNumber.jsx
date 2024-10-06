@@ -18,6 +18,7 @@ export default function PhoneNumber({ slotProps }) {
     const {
         controller: controllerProps,
         field: { ...fieldProps },
+        formRef,
     } = slotProps;
 
     return (
@@ -27,22 +28,28 @@ export default function PhoneNumber({ slotProps }) {
                 return (
                     <TextField
                         {...field}
+                        ref={(el) => {
+                            if (formRef) formRef.current[field.name] = el;
+                            field.ref(el);
+                        }}
                         variant="outlined"
                         error={Boolean(error?.type || error?.types)}
                         helperText={error?.message ?? " "}
                         fullWidth
-                        InputProps={{
-                            startAdornment: (
-                                <ReactCountryFlag countryCode="CO" svg />
-                            ),
-                            endAdornment: isDevelopment && (
-                                <Typography variant="caption">
-                                    {renderCount}
-                                </Typography>
-                            ),
-                            inputComponent: PhoneMask,
-                        }}
                         {...fieldProps}
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <ReactCountryFlag countryCode="CO" svg />
+                                ),
+                                endAdornment: isDevelopment && (
+                                    <Typography variant="caption">
+                                        {renderCount}
+                                    </Typography>
+                                ),
+                                inputComponent: PhoneMask,
+                            },
+                        }}
                     />
                 );
             }}
@@ -55,5 +62,6 @@ PhoneNumber.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
         field: PropTypes.object.isRequired,
+        formRef: PropTypes.any,
     }).isRequired,
 };
