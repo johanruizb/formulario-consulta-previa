@@ -1,4 +1,3 @@
-import { useTheme } from "@emotion/react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import SaveIcon from "@mui/icons-material/Save";
@@ -7,9 +6,9 @@ import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import LinearProgress from "@mui/material/LinearProgress";
+import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useLocalStorage, useRenderCount } from "@uidotdev/usehooks";
@@ -31,6 +30,7 @@ import BasicTextField from "../../components/Fields/TextField";
 import CityBirth from "../../components/Form/CityBirth";
 import CityLocation from "../../components/Form/CityLocation";
 import DocumentImage from "../../components/Form/DocumentImage";
+import LargeQuestion from "../../components/Form/LargeQuestion";
 import OtherConnectivity from "../../components/Form/OtherConnectivity";
 import OtherGender from "../../components/Form/OtherGender";
 import StateBirth from "../../components/Form/StateBirth";
@@ -39,11 +39,43 @@ import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
-import Link from "@mui/material/Link";
-import LargeQuestion from "../../components/Form/LargeQuestion";
 
-// import CityExpedition from "../../components/Form/CityExpedition";
-// import StateExpedition from "../../components/Form/StateExpedition";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useTheme } from "@mui/material/styles";
+import { Navigate, useParams } from "react-router-dom";
+import useSWR from "swr";
+import useSmall from "../../hooks/breakpoint/useSmall";
+import fetcher from "../../hooks/request/config";
+import { getBanner, getButtonsFooter, getFooter } from "./functions";
+import Chip from "@mui/material/Chip";
+
+const sortedFields = [
+    "firstName",
+    "lastName",
+    "identityDocument",
+    "documentNumber",
+    "countryExpedition",
+    "frontDocument",
+    "backDocument",
+    "birthdate",
+    "countryBirth",
+    "stateBirth",
+    "cityBirth",
+    "gender",
+    "ethnicity",
+    "entityName",
+    "typeEntity",
+    "phoneNumber",
+    "whatsappNumber",
+    "email",
+    "stateLocation",
+    "address",
+    "neighborhood",
+    "zona",
+    "connectivity",
+    "continuar_curso_120",
+    "processingOfPersonalData",
+];
 
 function useLoadForm() {
     const [form] = useLocalStorage("form", {});
@@ -52,10 +84,7 @@ function useLoadForm() {
     const isAfter = expires ? dayjs().isAfter(expires) : false;
 
     // Si expira el form, se limpia
-    if (expires && isAfter) {
-        return {};
-    }
-
+    if (expires && isAfter) return {};
     return form.values;
 }
 
@@ -86,9 +115,96 @@ function Save() {
     return null;
 }
 
-export default function FullScreenDialog() {
+function scrollIntoError(keys, formRef) {
+    for (const field of sortedFields)
+        if (keys.includes(field)) {
+            formRef.current[field]?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+            break;
+        }
+}
+
+//
+
+export default function FormularioRegistro() {
+    const { curso = "20hr" } = useParams();
+    const { data, isLoading, error } = useSWR(
+        URI.API + "/inscripcion/cupos/" + curso,
+        fetcher,
+    );
+
+    return isLoading ? (
+        <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+                position: "fixed",
+                width: "100%",
+                height: "100%",
+            }}
+        >
+            <CircularProgress />
+        </Stack>
+    ) : data?.curso_disponible === true ? (
+        <FullScreenDialog />
+    ) : data?.curso_disponible === false ? (
+        <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+                position: "fixed",
+                width: "100%",
+                height: "100%",
+            }}
+        >
+            <Typography variant="h4" textAlign="center">
+                ¡Lo sentimos!
+            </Typography>
+            <Typography variant="h6" textAlign="center">
+                No hay cupos disponibles para este curso
+            </Typography>
+        </Stack>
+    ) : (
+        <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+                position: "fixed",
+                width: "100%",
+                height: "100%",
+            }}
+        >
+            <Typography variant="h4" textAlign="center">
+                Error {error?.status || 500}
+            </Typography>
+            <Typography variant="h6" textAlign="center">
+                Se ha presentado un error al verificar los cupos disponibles
+            </Typography>
+            {error.statusText && (
+                <Chip
+                    label={String(error.statusText)
+                        .toUpperCase()
+                        .replaceAll(" ", "_")}
+                    sx={{
+                        position: "fixed",
+                        bottom: 0,
+                        mb: 2,
+                    }}
+                />
+            )}
+        </Stack>
+    );
+}
+
+function FullScreenDialog() {
+    const { curso = "20hr" } = useParams();
+
     const ref = useRef();
-    const [disabled, setDisabled] = useState(true);
+    const formRef = useRef({});
+
+    const [disabled, setDisabled] = useState(isProduction);
     const [sending, setSending] = useState(false);
 
     const [alert, setAlert] = useLocalStorage("alert", {
@@ -112,6 +228,7 @@ export default function FullScreenDialog() {
     const { reset, handleSubmit } = methods;
 
     const theme = useTheme();
+    const small = useSmall();
 
     const onCancel = () => {
         setSending(true);
@@ -122,14 +239,15 @@ export default function FullScreenDialog() {
                 keepDefaultValues: false,
             },
         );
-        localStorage.removeItem("form");
-        window.location.reload();
+        // window.localStorage.removeItem("form");
+        // window.sessionStorage.removeItem("form");
+        setTimeout(() => window.location.reload(), 750);
     };
 
     const onSubmit = (data) => {
         const start = dayjs();
         setSending(true);
-        const formData = formDataFromObject(data);
+        const formData = formDataFromObject({ ...data, curso });
         INSCRIPCION.registrar(formData)
             .then((response) => {
                 const timeout = getTimeout(start);
@@ -138,7 +256,8 @@ export default function FullScreenDialog() {
                     if (response.ok) {
                         response.json().then((data) => {
                             onOpenAlert(data.message);
-                            if (isProduction) onCancel();
+                            // if (isProduction) onCancel();
+                            onCancel();
                         });
                     } else {
                         response
@@ -170,8 +289,8 @@ export default function FullScreenDialog() {
     };
 
     const onError = (error) => {
-        console.log(error);
         const keys = Object.keys(error);
+
         let fields = keys
             .slice(0, 2)
             .map((key) => FORM_FIELDS_LABELS[key])
@@ -181,6 +300,7 @@ export default function FullScreenDialog() {
             fields = `${fields}... y ${keys.length - 2} más`;
         }
         onOpenAlert("Por favor verifica los campos: " + fields, "error");
+        scrollIntoError(keys, formRef);
     };
 
     const onSuccess = (token) => {
@@ -193,9 +313,11 @@ export default function FullScreenDialog() {
         ref.current?.reset();
     };
 
-    useEffect(() => {
-        localStorage.setItem("alert", JSON.stringify(alert));
-    }, [alert]);
+    const Banner = getBanner(curso, small);
+    const Footer = getFooter(curso, small);
+
+    if (!["20hr", "20hr-institucional"].includes(curso))
+        return <Navigate to="/" />;
 
     return (
         <Fragment>
@@ -216,687 +338,893 @@ export default function FullScreenDialog() {
                 </Box>
             )}
             <Dialog fullScreen open>
-                <DialogTitle>Registro</DialogTitle>
                 <DialogContent
                     sx={{
-                        pt: "8px !important",
+                        p: "0px !important",
                     }}
                 >
-                    <FormProvider {...methods}>
-                        <Box component="form" autoComplete="one-time-code">
-                            <Grid container spacing={1.25}>
-                                <Grid item xs={12} md={6}>
-                                    <BasicTextField
-                                        slotProps={{
-                                            controller: {
-                                                name: "firstName",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
-                                                    },
-                                                    pattern: {
-                                                        value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-                                                        message:
-                                                            "Por favor verifica el nombre",
+                    <Box
+                        component="img"
+                        src={Banner}
+                        alt="Banner"
+                        sx={{
+                            width: "100%",
+                            pb: 1.25,
+                        }}
+                    />
+                    <Box
+                        sx={{
+                            px: 2,
+                        }}
+                    >
+                        <FormProvider {...methods}>
+                            <Box component="form" autoComplete="one-time-code">
+                                <Grid container spacing={1.25}>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
+                                        }}
+                                    >
+                                        <BasicTextField
+                                            slotProps={{
+                                                controller: {
+                                                    name: "firstName",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
+                                                        pattern: {
+                                                            value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
+                                                            message:
+                                                                "Por favor verifica el nombre",
+                                                        },
+                                                        maxLength: {
+                                                            value: 150,
+                                                            message:
+                                                                "El nombre no puede tener más de 150 caracteres",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "Nombres",
-                                                required: true,
-                                                onChange: (
-                                                    e,
-                                                    onChangeController,
-                                                ) =>
-                                                    onChangeController(
-                                                        (
-                                                            e.target.value || ""
-                                                        ).toUpperCase(),
-                                                    ),
-                                            },
+                                                field: {
+                                                    label: "Nombres",
+                                                    required: true,
+                                                    onChange: (
+                                                        e,
+                                                        onChangeController,
+                                                    ) =>
+                                                        onChangeController(
+                                                            (
+                                                                e.target
+                                                                    .value || ""
+                                                            ).toUpperCase(),
+                                                        ),
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicTextField
-                                        slotProps={{
-                                            controller: {
-                                                name: "lastName",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
-                                                    },
-                                                    pattern: {
-                                                        value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-                                                        message:
-                                                            "Por favor verifica el apellido",
+                                    >
+                                        <BasicTextField
+                                            slotProps={{
+                                                controller: {
+                                                    name: "lastName",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
+                                                        pattern: {
+                                                            value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
+                                                            message:
+                                                                "Por favor verifica el apellido",
+                                                        },
+                                                        maxLength: {
+                                                            value: 150,
+                                                            message:
+                                                                "El apellido no puede tener más de 150 caracteres",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "Apellidos",
-                                                required: true,
-                                                onChange: (
-                                                    e,
-                                                    onChangeController,
-                                                ) =>
-                                                    onChangeController(
-                                                        (
-                                                            e.target.value || ""
-                                                        ).toUpperCase(),
-                                                    ),
-                                            },
+                                                field: {
+                                                    label: "Apellidos",
+                                                    required: true,
+                                                    onChange: (
+                                                        e,
+                                                        onChangeController,
+                                                    ) =>
+                                                        onChangeController(
+                                                            (
+                                                                e.target
+                                                                    .value || ""
+                                                            ).toUpperCase(),
+                                                        ),
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicSelect
-                                        slotProps={{
-                                            controller: {
-                                                name: "identityDocument",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <BasicSelect
+                                            slotProps={{
+                                                controller: {
+                                                    name: "identityDocument",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                options: [
-                                                    {
-                                                        value: 1,
-                                                        label: "(CC) Cédula de ciudadanía",
-                                                    },
-                                                    {
-                                                        value: 2,
-                                                        label: "(CE) Cédula de extranjería",
-                                                    },
-                                                    {
-                                                        value: 3,
-                                                        label: "(PA) Pasaporte",
-                                                    },
-                                                    {
-                                                        value: 4,
-                                                        label: "(PR) Permiso de residencia",
-                                                    },
-                                                ],
-                                                label: "Tipo de documento de identidad",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    options: [
+                                                        {
+                                                            value: 1,
+                                                            label: "(CC) Cédula de ciudadanía",
+                                                        },
+                                                        {
+                                                            value: 2,
+                                                            label: "(CE) Cédula de extranjería",
+                                                        },
+                                                        {
+                                                            value: 3,
+                                                            label: "(PA) Pasaporte",
+                                                        },
+                                                        {
+                                                            value: 4,
+                                                            label: "(PR) Permiso de residencia",
+                                                        },
+                                                        {
+                                                            value: 5,
+                                                            label: "(TI) Tarjeta de identidad",
+                                                        },
+                                                    ],
+                                                    label: "Tipo de documento de identidad",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicTextField
-                                        slotProps={{
-                                            controller: {
-                                                name: "documentNumber",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <BasicTextField
+                                            slotProps={{
+                                                controller: {
+                                                    name: "documentNumber",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
+                                                        maxLength: {
+                                                            value: 20,
+                                                            message:
+                                                                "El número de documento no puede tener más de 20 caracteres",
+                                                        },
+                                                        pattern: {
+                                                            value: /^[^.,\s]+$/,
+                                                            message:
+                                                                "El número de documento no puede tener espacios, puntos o comas",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "Número de documento",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "Número de documento",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <AsyncSelect
-                                        fetchProps={{
-                                            url: `${URI.FORM}/v1/countries`,
-                                        }}
-                                        slotProps={{
-                                            controller: {
-                                                name: "countryExpedition",
-                                                defaultValue: "CO",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <AsyncSelect
+                                            fetchProps={{
+                                                url: `${URI.FORM}/v1/countries`,
+                                            }}
+                                            slotProps={{
+                                                controller: {
+                                                    name: "countryExpedition",
+                                                    defaultValue: "CO",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "País de expedición",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "País de expedición",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid size={12}>
+                                        <DocumentImage formRef={formRef} />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <DocumentImage />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BirthdayField
-                                        slotProps={{
-                                            controller: {
-                                                name: "birthdate",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <BirthdayField
+                                            slotProps={{
+                                                controller: {
+                                                    name: "birthdate",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "Fecha de nacimiento",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "Fecha de nacimiento",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <AsyncSelect
-                                        fetchProps={{
-                                            url: `${URI.FORM}/v1/countries`,
-                                        }}
-                                        slotProps={{
-                                            controller: {
-                                                name: "countryBirth",
-                                                defaultValue: "CO",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <AsyncSelect
+                                            fetchProps={{
+                                                url: `${URI.FORM}/v1/countries`,
+                                            }}
+                                            slotProps={{
+                                                controller: {
+                                                    name: "countryBirth",
+                                                    defaultValue: "CO",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "País de nacimiento",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "País de nacimiento",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <StateBirth />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <CityBirth />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicSelect
-                                        slotProps={{
-                                            controller: {
-                                                name: "gender",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <StateBirth formRef={formRef} />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
+                                        }}
+                                    >
+                                        <CityBirth formRef={formRef} />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
+                                        }}
+                                    >
+                                        <BasicSelect
+                                            slotProps={{
+                                                controller: {
+                                                    name: "gender",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                options: [
-                                                    {
-                                                        value: 1,
-                                                        label: "Femenino",
-                                                    },
-                                                    {
-                                                        value: 2,
-                                                        label: "Masculino",
-                                                    },
-                                                    {
-                                                        value: 3,
-                                                        label: "Transgénero",
-                                                    },
-                                                    {
-                                                        value: 4,
-                                                        label: "No binario",
-                                                    },
-                                                    {
-                                                        value: 5,
-                                                        label: "Prefiero no decirlo",
-                                                    },
-                                                    {
-                                                        value: 0,
-                                                        label: "Otro (especifique)",
-                                                    },
-                                                ],
-                                                label: "Género",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    options: [
+                                                        {
+                                                            value: 1,
+                                                            label: "Femenino",
+                                                        },
+                                                        {
+                                                            value: 2,
+                                                            label: "Masculino",
+                                                        },
+                                                        {
+                                                            value: 3,
+                                                            label: "Transgénero",
+                                                        },
+                                                        {
+                                                            value: 4,
+                                                            label: "No binario",
+                                                        },
+                                                        {
+                                                            value: 5,
+                                                            label: "Prefiero no decirlo",
+                                                        },
+                                                        {
+                                                            value: 0,
+                                                            label: "Otro (especifique)",
+                                                        },
+                                                    ],
+                                                    label: "Género",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <OtherGender formRef={formRef} />
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <OtherGender />
-                                <Grid item xs={12} md={6}>
-                                    <BasicSelect
-                                        slotProps={{
-                                            controller: {
-                                                name: "ethnicity",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <BasicSelect
+                                            slotProps={{
+                                                controller: {
+                                                    name: "ethnicity",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                options: [
-                                                    {
-                                                        value: 1,
-                                                        label: "Indígena",
-                                                    },
-                                                    {
-                                                        value: 2,
-                                                        label: "Mestizo",
-                                                    },
-                                                    {
-                                                        value: 3,
-                                                        label: "Blanco",
-                                                    },
-                                                    { value: 4, label: "Rom" },
-                                                    {
-                                                        value: 5,
-                                                        label: "Raizal del Archipiélago de San Andrés y Providencia",
-                                                    },
-                                                    {
-                                                        value: 6,
-                                                        label: "Palenquero de San Basilio",
-                                                    },
-                                                    {
-                                                        value: 7,
-                                                        label: "Negro(a), afrocolombiano(a) o afrodescendiente",
-                                                    },
-                                                    {
-                                                        value: 8,
-                                                        label: "Mulato(a)",
-                                                    },
-                                                    {
-                                                        value: 9,
-                                                        label: "Ninguno de los anteriores",
-                                                    },
-                                                ],
-                                                label: "Etnia",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    options: [
+                                                        {
+                                                            value: 1,
+                                                            label: "Indígena",
+                                                        },
+                                                        {
+                                                            value: 2,
+                                                            label: "Mestizo",
+                                                        },
+                                                        {
+                                                            value: 3,
+                                                            label: "Blanco",
+                                                        },
+                                                        {
+                                                            value: 4,
+                                                            label: "Rom",
+                                                        },
+                                                        {
+                                                            value: 5,
+                                                            label: "Raizal del Archipiélago de San Andrés y Providencia",
+                                                        },
+                                                        {
+                                                            value: 6,
+                                                            label: "Palenquero de San Basilio",
+                                                        },
+                                                        {
+                                                            value: 7,
+                                                            label: "Negro(a), afrocolombiano(a) o afrodescendiente",
+                                                        },
+                                                        {
+                                                            value: 8,
+                                                            label: "Mulato(a)",
+                                                        },
+                                                        {
+                                                            value: 9,
+                                                            label: "Ninguno de los anteriores",
+                                                        },
+                                                    ],
+                                                    label: "Grupo poblacional",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicTextField
-                                        slotProps={{
-                                            controller: {
-                                                name: "entityName",
-                                                defaultValue: "",
-                                            },
-                                            field: {
-                                                label: "Nombre de la entidad u organización que representa",
-                                                onChange: (
-                                                    e,
-                                                    onChangeController,
-                                                ) =>
-                                                    onChangeController(
-                                                        (
-                                                            e.target.value || ""
-                                                        ).toUpperCase(),
-                                                    ),
-                                            },
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicSelect
-                                        slotProps={{
-                                            controller: {
-                                                name: "typeEntity",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <BasicTextField
+                                            slotProps={{
+                                                controller: {
+                                                    name: "entityName",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        maxLength: {
+                                                            value: 300,
+                                                            message:
+                                                                "El nombre no puede tener más de 300 caracteres",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                options: [
-                                                    {
-                                                        value: 1,
-                                                        label: "Comunidad Negro(a) afrocolombiano(a) o afrodescendiente",
-                                                    },
-                                                    {
-                                                        value: 2,
-                                                        label: "Comunidad Indígena",
-                                                    },
-                                                    {
-                                                        value: 3,
-                                                        label: "Ejecutores de procesos Consulta Previa",
-                                                    },
-                                                    {
-                                                        value: 4,
-                                                        label: "Institucionalidad interviniente en Consulta Previa",
-                                                    },
-                                                    {
-                                                        value: 5,
-                                                        label: "Contratista del Estado",
-                                                    },
-                                                    {
-                                                        value: 6,
-                                                        label: "Funcionarios Ministerio del Interior",
-                                                    },
-                                                    {
-                                                        value: 7,
-                                                        label: "Población civil",
-                                                    },
-                                                    {
-                                                        value: 8,
-                                                        label: "Empresario",
-                                                    },
-                                                    {
-                                                        value: 9,
-                                                        label: "Educación",
-                                                    },
-                                                ],
-                                                label: "De los siguientes roles en cual se reconoce",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "Nombre de la entidad u organización que representa",
+                                                    onChange: (
+                                                        e,
+                                                        onChangeController,
+                                                    ) =>
+                                                        onChangeController(
+                                                            (
+                                                                e.target
+                                                                    .value || ""
+                                                            ).toUpperCase(),
+                                                        ),
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <PhoneNumber
-                                        slotProps={{
-                                            controller: {
-                                                name: "phoneNumber",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <BasicSelect
+                                            slotProps={{
+                                                controller: {
+                                                    name: "typeEntity",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "Número de teléfono",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    options: [
+                                                        {
+                                                            value: 1,
+                                                            label: "Comunidad Negro(a) afrocolombiano(a) o afrodescendiente",
+                                                        },
+                                                        {
+                                                            value: 2,
+                                                            label: "Comunidad Indígena",
+                                                        },
+                                                        {
+                                                            value: 3,
+                                                            label: "Ejecutores de procesos Consulta Previa",
+                                                        },
+                                                        {
+                                                            value: 4,
+                                                            label: "Institucionalidad interviniente en Consulta Previa",
+                                                        },
+                                                        {
+                                                            value: 5,
+                                                            label: "Contratista del Estado",
+                                                        },
+                                                        {
+                                                            value: 6,
+                                                            label: "Funcionarios Ministerio del Interior",
+                                                        },
+                                                        {
+                                                            value: 7,
+                                                            label: "Población civil",
+                                                        },
+                                                        {
+                                                            value: 8,
+                                                            label: "Empresario",
+                                                        },
+                                                        {
+                                                            value: 9,
+                                                            label: "Educación",
+                                                        },
+                                                    ],
+                                                    label: "De los siguientes roles en cuál se reconoce?",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <PhoneNumber
-                                        slotProps={{
-                                            controller: {
-                                                name: "whatsappNumber",
-                                                defaultValue: "",
-                                            },
-                                            field: {
-                                                label: "Número de WhatsApp",
-                                            },
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicTextField
-                                        slotProps={{
-                                            controller: {
-                                                name: "email",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
-                                                    },
-                                                    pattern: {
-                                                        value: /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/,
-                                                        message:
-                                                            "Por favor verifica el correo",
+                                    >
+                                        <PhoneNumber
+                                            slotProps={{
+                                                controller: {
+                                                    name: "phoneNumber",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "Correo electrónico",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "Número de teléfono - WhatsApp",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    {/* <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <AsyncSelect
-                                        fetchProps={{
-                                            url: `${URI.FORM}/v1/countries/CO/states`,
+                                    >
+                                        <PhoneNumber
+                                            slotProps={{
+                                                controller: {
+                                                    name: "whatsappNumber",
+                                                    defaultValue: "",
+                                                },
+                                                field: {
+                                                    label: "Número de WhatsApp",
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid> */}
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                        slotProps={{
-                                            controller: {
-                                                name: "stateLocation",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <BasicTextField
+                                            slotProps={{
+                                                controller: {
+                                                    name: "email",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
+                                                        pattern: {
+                                                            value: /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/,
+                                                            message:
+                                                                "Por favor verifica el correo",
+                                                        },
+                                                        maxLength: {
+                                                            value: 300,
+                                                            message:
+                                                                "El correo no puede tener más de 300 caracteres",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "Departamento de residencia",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "Correo electrónico",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <CityLocation />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicTextField
-                                        slotProps={{
-                                            controller: {
-                                                name: "address",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <AsyncSelect
+                                            fetchProps={{
+                                                url: `${URI.FORM}/v1/countries/CO/states`,
+                                            }}
+                                            slotProps={{
+                                                controller: {
+                                                    name: "stateLocation",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "Dirección de residencia",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "Departamento de residencia",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicTextField
-                                        slotProps={{
-                                            controller: {
-                                                name: "neighborhood",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <CityLocation formRef={formRef} />
+                                    </Grid>
+                                    {/* <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
+                                        }}
+                                    >
+                                        <BasicTextField
+                                            slotProps={{
+                                                controller: {
+                                                    name: "address",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                label: "Barrio de residencia",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "Dirección de residencia",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid> */}
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicSelect
-                                        slotProps={{
-                                            controller: {
-                                                name: "zona",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <BasicTextField
+                                            slotProps={{
+                                                controller: {
+                                                    name: "neighborhood",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
+                                                        maxLength: {
+                                                            value: 300,
+                                                            message:
+                                                                "El barrio no puede tener más de 300 caracteres",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                options: [
-                                                    {
-                                                        value: "rural",
-                                                        label: "Rural",
-                                                    },
-                                                    {
-                                                        value: "urbana",
-                                                        label: "Urbana",
-                                                    },
-                                                ],
-                                                label: "Zona de residencia",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    label: "Barrio de residencia",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <BasicSelect
-                                        slotProps={{
-                                            controller: {
-                                                name: "connectivity",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Este campo no puede estar vacio",
+                                    >
+                                        <BasicSelect
+                                            slotProps={{
+                                                controller: {
+                                                    name: "zona",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                            field: {
-                                                options: [
-                                                    {
-                                                        value: "nula",
-                                                        label: "Sin conexión",
-                                                    },
-                                                    {
-                                                        value: "baja",
-                                                        label: "Solo con wifi público",
-                                                    },
-                                                    {
-                                                        value: "media",
-                                                        label: "Por intervalos de tiempo con dificultad",
-                                                    },
-                                                    {
-                                                        value: "plena",
-                                                        label: "Todo el día sin dificultad",
-                                                    },
-                                                    {
-                                                        value: "otra",
-                                                        label: "Otra (especificar)",
-                                                    },
-                                                ],
-                                                label: "Acceso a conexión de internet",
-                                                required: true,
-                                            },
+                                                field: {
+                                                    options: [
+                                                        {
+                                                            value: "rural",
+                                                            label: "Rural",
+                                                        },
+                                                        {
+                                                            value: "urbana",
+                                                            label: "Urbana",
+                                                        },
+                                                    ],
+                                                    label: "Zona de residencia",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        size={{
+                                            xs: 12,
+                                            md: 6,
                                         }}
-                                    />
-                                </Grid>
-                                <OtherConnectivity />
-                                <Grid item xs={12}>
-                                    <LargeQuestion
-                                        slotProps={{
-                                            controller: {
-                                                name: "continuar_curso_120",
-                                                defaultValue: "",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Es necesario responder la pregunta para continuar",
+                                    >
+                                        <BasicSelect
+                                            slotProps={{
+                                                controller: {
+                                                    name: "connectivity",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Este campo no puede estar vacio",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid
-                                    item
-                                    xs={12}
-                                    display="flex"
-                                    justifyContent="center"
-                                >
-                                    <CheckboxField
-                                        slotProps={{
-                                            controller: {
-                                                name: "processingOfPersonalData",
-                                                rules: {
-                                                    required: {
-                                                        value: true,
-                                                        message:
-                                                            "Es necesario marcar la casilla para continuar",
+                                                field: {
+                                                    options: [
+                                                        {
+                                                            value: "nula",
+                                                            label: "Sin conexión",
+                                                        },
+                                                        {
+                                                            value: "baja",
+                                                            label: "Solo con wifi público",
+                                                        },
+                                                        {
+                                                            value: "media",
+                                                            label: "Por intervalos de tiempo con dificultad",
+                                                        },
+                                                        {
+                                                            value: "plena",
+                                                            label: "Todo el día sin dificultad",
+                                                        },
+                                                        {
+                                                            value: "otra",
+                                                            label: "Otra (especificar)",
+                                                        },
+                                                    ],
+                                                    label: "Acceso a conexión de internet",
+                                                    required: true,
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <OtherConnectivity formRef={formRef} />
+                                    <Grid size={12}>
+                                        <LargeQuestion
+                                            slotProps={{
+                                                controller: {
+                                                    name: "continuar_curso_120",
+                                                    defaultValue: "",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Es necesario responder la pregunta para continuar",
+                                                        },
                                                     },
                                                 },
-                                            },
-                                        }}
-                                    />
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        display="flex"
+                                        justifyContent="center"
+                                        size={12}
+                                    >
+                                        <CheckboxField
+                                            slotProps={{
+                                                controller: {
+                                                    name: "processingOfPersonalData",
+                                                    rules: {
+                                                        required: {
+                                                            value: true,
+                                                            message:
+                                                                "Es necesario marcar la casilla para continuar",
+                                                        },
+                                                    },
+                                                },
+                                                formRef,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid size={12}>
+                                        <Box
+                                            component={Turnstile}
+                                            onSuccess={onSuccess}
+                                            onExpire={onExpire}
+                                            options={{
+                                                theme: "light",
+                                                refreshExpired: "manual",
+                                            }}
+                                            ref={ref}
+                                            label={`form_button_${window.location.hostname}`}
+                                            siteKey={
+                                                isProduction
+                                                    ? "0x4AAAAAAAiIftnN7i8Mr-yd"
+                                                    : "0x4AAAAAAAiIgbhjquURIMbK"
+                                            }
+                                            sx={{
+                                                mb: 2,
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                            }}
+                                        />
+                                    </Grid>
                                 </Grid>
-                                <Grid item xs={12}>
-                                    <Box
-                                        component={Turnstile}
-                                        onSuccess={onSuccess}
-                                        onExpire={onExpire}
-                                        options={{
-                                            theme: "light",
-                                            refreshExpired: "manual",
-                                        }}
-                                        ref={ref}
-                                        label={`form_button_${window.location.hostname}`}
-                                        siteKey={
-                                            isProduction
-                                                ? "0x4AAAAAAAiIftnN7i8Mr-yd"
-                                                : "0x4AAAAAAAiIgbhjquURIMbK"
-                                        }
-                                        sx={{
-                                            mb: 2,
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                        }}
-                                    />
-                                </Grid>
-                            </Grid>
-                        </Box>
-                        <Save />
-                    </FormProvider>
-                    <Stack alignItems="center">
-                        <Link href="https://www.freepik.es/vector-gratis/icono-perfil-plano-dibujado-mano_17539369.htm#fromView=search&page=1&position=29&uuid=fa87b794-1c3a-486d-b7a0-5aa2d7a92f9e">
-                            Imagen de freepik
-                        </Link>
-                    </Stack>
+                            </Box>
+                            <Save />
+                        </FormProvider>
+                        <Stack alignItems="center">
+                            <Link href="https://www.freepik.es/vector-gratis/icono-perfil-plano-dibujado-mano_17539369.htm#fromView=search&page=1&position=29&uuid=fa87b794-1c3a-486d-b7a0-5aa2d7a92f9e">
+                                Imagen de freepik
+                            </Link>
+                        </Stack>
+                    </Box>
+                    <Box
+                        component="img"
+                        src={Footer}
+                        alt="Banner"
+                        sx={{
+                            width: "100%",
+                            pt: 1.25,
+                            mb: "-5px",
+                        }}
+                    />
                 </DialogContent>
                 <DialogActions
                     sx={{
                         justifyContent: "space-between",
+                        backgroundImage: `url(${getButtonsFooter(
+                            curso,
+                            small,
+                        )})`,
+                        backgroundSize: "cover",
                     }}
                 >
                     {sending ? (
@@ -919,6 +1247,10 @@ export default function FullScreenDialog() {
                             <Button
                                 onClick={onCancel}
                                 startIcon={<DeleteForeverIcon />}
+                                // color="white"
+                                sx={{
+                                    color: "white",
+                                }}
                             >
                                 Limpiar formulario
                             </Button>
@@ -926,6 +1258,9 @@ export default function FullScreenDialog() {
                                 onClick={handleSubmit(onSubmit, onError)}
                                 endIcon={<SaveIcon />}
                                 disabled={disabled}
+                                sx={{
+                                    color: "white",
+                                }}
                             >
                                 Registrarse
                             </Button>
