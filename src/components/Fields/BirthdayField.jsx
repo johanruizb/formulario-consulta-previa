@@ -41,6 +41,7 @@ export default function BirthdayField({ slotProps }) {
     const {
         controller: controllerProps,
         field: { InputProps, ...fieldProps },
+        formRef,
     } = slotProps;
 
     // const devProps = isDevelopment
@@ -65,8 +66,11 @@ export default function BirthdayField({ slotProps }) {
                 return (
                     <DatePicker
                         {...field}
+                        ref={(el) => {
+                            if (formRef) formRef.current[field.name] = el;
+                            field.ref(el);
+                        }}
                         onChange={(date) => {
-                            console.log("instance", dayjs.isDayjs(date));
                             const formattedDate = dayjs(date);
                             if (formattedDate.isValid()) {
                                 field.onChange(formattedDate);
@@ -115,5 +119,6 @@ BirthdayField.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
         field: PropTypes.object.isRequired,
+        formRef: PropTypes.any,
     }).isRequired,
 };
