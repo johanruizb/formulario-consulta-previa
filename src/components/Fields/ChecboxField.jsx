@@ -15,7 +15,7 @@ import { Controller, useFormContext } from "react-hook-form";
 export default function CheckboxField({ slotProps }) {
     const { control } = useFormContext();
 
-    const { controller: controllerProps } = slotProps;
+    const { controller: controllerProps, formRef } = slotProps;
 
     return (
         <Controller
@@ -31,7 +31,17 @@ export default function CheckboxField({ slotProps }) {
                     </FormLabel>
                     <FormGroup>
                         <FormControlLabel
-                            control={<Checkbox {...field} />}
+                            control={
+                                <Checkbox
+                                    {...field}
+                                    checked={field.value}
+                                    ref={(el) => {
+                                        if (formRef)
+                                            formRef.current[field.name] = el;
+                                        field.ref(el);
+                                    }}
+                                />
+                            }
                             label={
                                 <Typography>
                                     Acepto la{" "}
@@ -70,5 +80,6 @@ CheckboxField.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
         field: PropTypes.object,
+        formRef: PropTypes.any,
     }).isRequired,
 };
