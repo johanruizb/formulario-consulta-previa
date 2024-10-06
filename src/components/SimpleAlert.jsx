@@ -9,12 +9,20 @@ export default function SimpleAlert({
     severity = "success",
     autoHideDuration = 6000,
 }) {
+    const handleClose = (event, reason) => {
+        if (reason === "clickaway") {
+            return;
+        }
+
+        onClose();
+    };
+
     return (
         open && (
             <Snackbar
                 open={open}
                 autoHideDuration={autoHideDuration}
-                onClose={onClose}
+                onClose={handleClose}
             >
                 <Alert
                     severity={severity}
