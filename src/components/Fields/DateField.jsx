@@ -44,7 +44,6 @@ export default function DateField({ slotProps }) {
                     <DatePicker
                         {...field}
                         onChange={(date) => {
-                            console.log("instance", dayjs.isDayjs(date));
                             const formattedDate = dayjs(date);
                             if (formattedDate.isValid()) {
                                 field.onChange(formattedDate);
