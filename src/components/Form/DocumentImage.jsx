@@ -1,17 +1,16 @@
 import AspectRatio from "@mui/joy/AspectRatio";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { useRenderCount } from "@uidotdev/usehooks";
 import PropTypes from "prop-types";
 import { forwardRef, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useController, useFormContext } from "react-hook-form";
 
-import Reverso from "../../assets/reverso.png";
 import Frente from "../../assets/frente.png";
+import Reverso from "../../assets/reverso.png";
 
 const DocumentField = forwardRef(function DocumentField(props, ref) {
     const low = false;
@@ -105,8 +104,7 @@ DocumentField.propTypes = {
     placeholder: PropTypes.string,
 };
 
-function FrontDocumentImage() {
-    const counter = useRenderCount();
+function FrontDocumentImage({ formRef }) {
     const { control } = useFormContext();
 
     const {
@@ -118,7 +116,7 @@ function FrontDocumentImage() {
         rules: {
             required: {
                 value: true,
-                message: "Este campo no puede estar vacio",
+                message: "Es necesario subir una foto del frente del documento",
             },
         },
     });
@@ -128,6 +126,7 @@ function FrontDocumentImage() {
             "image/png": [".png", ".jpg", ".jpeg"],
         },
         multiple: false,
+        maxSize: 10 * 1024 * 1024,
         onDropAccepted: (files) => {
             field.onChange(files[0]);
         },
@@ -135,28 +134,16 @@ function FrontDocumentImage() {
 
     const { ref, ...rootProps } = getRootProps();
 
-    console.log("FrontDocumentImage » counter", counter);
-
     return (
         <TextField
             {...rootProps}
+            inputRef={(el) => (formRef.current.frontDocument = el)}
             value={acceptedFiles[0]?.name ?? ""}
             label="Frente del documento"
             error={Boolean(error?.type || error?.types)}
             helperText={error?.message ?? " "}
             ref={ref}
             fullWidth
-            InputLabelProps={{
-                shrink: true,
-            }}
-            InputProps={{
-                inputComponent: DocumentField,
-                inputProps: {
-                    getInputProps,
-                    image: acceptedFiles[0],
-                    placeholder: Frente,
-                },
-            }}
             sx={{
                 "*": {
                     cursor: "pointer !important",
@@ -166,11 +153,29 @@ function FrontDocumentImage() {
                 },
                 // mb: "19.91px",
             }}
+            slotProps={{
+                input: {
+                    inputComponent: DocumentField,
+                    inputProps: {
+                        getInputProps,
+                        image: acceptedFiles[0],
+                        placeholder: Frente,
+                    },
+                },
+
+                inputLabel: {
+                    shrink: true,
+                },
+            }}
         />
     );
 }
 
-function BackDocumentImage() {
+FrontDocumentImage.propTypes = {
+    formRef: PropTypes.any,
+};
+
+function BackDocumentImage({ formRef }) {
     const { control } = useFormContext();
 
     const {
@@ -182,7 +187,8 @@ function BackDocumentImage() {
         rules: {
             required: {
                 value: true,
-                message: "Este campo no puede estar vacio",
+                message:
+                    "Es necesario subir una foto del reverso del documento",
             },
         },
     });
@@ -192,6 +198,7 @@ function BackDocumentImage() {
             "image/png": [".png", ".jpg", ".jpeg"],
         },
         multiple: false,
+        maxSize: 10 * 1024 * 1024,
         onDropAccepted: (files) => {
             field.onChange(files[0]);
         },
@@ -202,23 +209,13 @@ function BackDocumentImage() {
     return (
         <TextField
             {...rootProps}
+            inputRef={(el) => (formRef.current.backDocument = el)}
             value={acceptedFiles[0]?.name ?? ""}
             label="Reverso del documento"
             error={Boolean(error?.type || error?.types)}
             helperText={error?.message ?? " "}
             ref={ref}
             fullWidth
-            InputLabelProps={{
-                shrink: true,
-            }}
-            InputProps={{
-                inputComponent: DocumentField,
-                inputProps: {
-                    getInputProps,
-                    image: acceptedFiles[0],
-                    placeholder: Reverso,
-                },
-            }}
             sx={{
                 "*": {
                     cursor: "pointer !important",
@@ -228,21 +225,53 @@ function BackDocumentImage() {
                 },
                 // mb: "19.91px",
             }}
+            slotProps={{
+                input: {
+                    inputComponent: DocumentField,
+                    inputProps: {
+                        getInputProps,
+                        image: acceptedFiles[0],
+                        placeholder: Reverso,
+                    },
+                },
+
+                inputLabel: {
+                    shrink: true,
+                },
+            }}
         />
     );
 }
 
-function DocumentImage() {
+BackDocumentImage.propTypes = {
+    formRef: PropTypes.any,
+};
+
+function DocumentImage({ formRef }) {
     return (
         <Grid container spacing={1.25}>
-            <Grid item xs={12} md={6}>
-                <FrontDocumentImage />
+            <Grid
+                size={{
+                    xs: 12,
+                    md: 6,
+                }}
+            >
+                <FrontDocumentImage formRef={formRef} />
             </Grid>
-            <Grid item xs={12} md={6}>
-                <BackDocumentImage />
+            <Grid
+                size={{
+                    xs: 12,
+                    md: 6,
+                }}
+            >
+                <BackDocumentImage formRef={formRef} />
             </Grid>
         </Grid>
     );
 }
+
+DocumentImage.propTypes = {
+    formRef: PropTypes.any,
+};
 
 export default DocumentImage;
