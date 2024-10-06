@@ -17,6 +17,7 @@ export default function BasicTextField({ slotProps }) {
     const {
         controller: controllerProps,
         field: { InputProps, onChange: onChangeField, ...fieldProps },
+        formRef,
     } = slotProps;
 
     return (
@@ -27,6 +28,10 @@ export default function BasicTextField({ slotProps }) {
                 return (
                     <TextField
                         {...field}
+                        ref={(el) => {
+                            if (formRef) formRef.current[field.name] = el;
+                            field.ref(el);
+                        }}
                         onChange={(e) =>
                             onChangeField?.(e, onChangeController) ||
                             onChangeController(e)
@@ -35,15 +40,17 @@ export default function BasicTextField({ slotProps }) {
                         error={Boolean(error?.type || error?.types)}
                         helperText={error?.message ?? " "}
                         fullWidth
-                        InputProps={{
-                            endAdornment: isDevelopment && (
-                                <Typography variant="caption">
-                                    {renderCount}
-                                </Typography>
-                            ),
-                            ...InputProps,
-                        }}
                         {...fieldProps}
+                        slotProps={{
+                            input: {
+                                endAdornment: isDevelopment && (
+                                    <Typography variant="caption">
+                                        {renderCount}
+                                    </Typography>
+                                ),
+                                ...InputProps,
+                            },
+                        }}
                     />
                 );
             }}
@@ -56,5 +63,6 @@ BasicTextField.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
         field: PropTypes.object.isRequired,
+        formRef: PropTypes.any,
     }).isRequired,
 };
