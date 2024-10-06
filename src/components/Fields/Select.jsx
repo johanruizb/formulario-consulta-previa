@@ -47,7 +47,11 @@ export default function BasicSelect({ slotProps }) {
     const renderCount = useRenderCount();
 
     const { control } = useFormContext();
-    const { controller: controllerProps, field: fieldProps } = slotProps;
+    const {
+        controller: controllerProps,
+        field: fieldProps,
+        formRef,
+    } = slotProps;
 
     return (
         <Controller
@@ -65,6 +69,10 @@ export default function BasicSelect({ slotProps }) {
                         <Select
                             {...field}
                             {...fieldProps}
+                            ref={(el) => {
+                                if (formRef) formRef.current[field.name] = el;
+                                field.ref(el);
+                            }}
                             IconComponent={(props) =>
                                 Counter({ renderCount, ...props })
                             }
@@ -91,5 +99,6 @@ BasicSelect.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
         field: PropTypes.object.isRequired,
+        formRef: PropTypes.any,
     }).isRequired,
 };
