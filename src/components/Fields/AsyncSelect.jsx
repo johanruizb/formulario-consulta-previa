@@ -53,7 +53,11 @@ export default function AsyncSelect({ slotProps, fetchProps }) {
     const renderCount = useRenderCount();
 
     const { control } = useFormContext();
-    const { controller: controllerProps, field: fieldProps } = slotProps;
+    const {
+        controller: controllerProps,
+        field: fieldProps,
+        formRef,
+    } = slotProps;
 
     const [options, setOptions] = useState();
     const { url: fetchURL, options: fetchOptions } = fetchProps;
@@ -97,6 +101,10 @@ export default function AsyncSelect({ slotProps, fetchProps }) {
                             IconComponent={(props) =>
                                 Counter({ renderCount, ...props })
                             }
+                            ref={(el) => {
+                                if (formRef) formRef.current[field.name] = el;
+                                field.ref(el);
+                            }}
                         >
                             {options?.map((option) => (
                                 <MenuItem
@@ -129,6 +137,7 @@ AsyncSelect.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
         field: PropTypes.object.isRequired,
+        formRef: PropTypes.any,
     }).isRequired,
     fetchProps: PropTypes.shape({
         url: PropTypes.string,
