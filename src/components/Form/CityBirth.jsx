@@ -2,7 +2,9 @@ import { useFormContext, useWatch } from "react-hook-form";
 import AsyncSelect from "../Fields/AsyncSelect";
 import { URI } from "../constant";
 
-export default function CityBirth() {
+import PropTypes from "prop-types";
+
+export default function CityBirth({ formRef }) {
     const { control } = useFormContext();
     const [countryBirth, stateBirth] = useWatch({
         control: control,
@@ -33,7 +35,12 @@ export default function CityBirth() {
                     label: "Ciudad de nacimiento",
                     required: true,
                 },
+                formRef,
             }}
         />
     );
 }
+
+CityBirth.propTypes = {
+    formRef: PropTypes.any,
+};
