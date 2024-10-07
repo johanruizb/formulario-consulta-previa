@@ -40,14 +40,13 @@ import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
 
+import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useTheme } from "@mui/material/styles";
 import { Navigate, useParams } from "react-router-dom";
 import useSWR from "swr";
 import useSmall from "../../hooks/breakpoint/useSmall";
-import fetcher from "../../hooks/request/config";
 import { getBanner, getButtonsFooter, getFooter } from "./functions";
-import Chip from "@mui/material/Chip";
 
 const sortedFields = [
     "firstName",
@@ -132,7 +131,6 @@ export default function FormularioRegistro() {
     const { curso = "20hr" } = useParams();
     const { data, isLoading, error } = useSWR(
         URI.API + "/inscripcion/cupos/" + curso,
-        fetcher,
     );
 
     return isLoading ? (
