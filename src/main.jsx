@@ -37,8 +37,7 @@ createRoot(document.getElementById("root")).render(
                     <SWRConfig
                         value={{
                             revalidateOnMount: true,
-                            revalidateOnFocus: false,
-                            refreshInterval: 15000,
+                            refreshInterval: false,
                             fetcher: async (...args) => {
                                 const res = await fetch(...args);
                                 return res.ok
