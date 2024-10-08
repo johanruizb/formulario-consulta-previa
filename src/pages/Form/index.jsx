@@ -133,6 +133,9 @@ export default function FormularioRegistro() {
         URI.API + "/inscripcion/cupos/" + curso,
     );
 
+    if (!["20hr", "20hr-institucional"].includes(curso))
+        return <Navigate to="/" />;
+
     return isLoading ? (
         <Stack
             alignItems="center"
@@ -313,9 +316,6 @@ function FullScreenDialog() {
 
     const Banner = getBanner(curso, small);
     const Footer = getFooter(curso, small);
-
-    if (!["20hr", "20hr-institucional"].includes(curso))
-        return <Navigate to="/" />;
 
     return (
         <Fragment>
