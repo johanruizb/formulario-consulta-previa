@@ -3,6 +3,8 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import SaveIcon from "@mui/icons-material/Save";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import CircularProgress from "@mui/material/CircularProgress";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -10,6 +12,7 @@ import Grid from "@mui/material/Grid2";
 import LinearProgress from "@mui/material/LinearProgress";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
+import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { useLocalStorage, useRenderCount } from "@uidotdev/usehooks";
 import dayjs from "dayjs";
@@ -20,6 +23,9 @@ import {
     useFormContext,
     useWatch,
 } from "react-hook-form";
+import { Navigate, useParams } from "react-router-dom";
+import useSWR from "swr";
+
 import { FORM_FIELDS_LABELS, URI } from "../../components/constant";
 import AsyncSelect from "../../components/Fields/AsyncSelect";
 import BirthdayField from "../../components/Fields/BirthdayField";
@@ -35,17 +41,11 @@ import OtherConnectivity from "../../components/Form/OtherConnectivity";
 import OtherGender from "../../components/Form/OtherGender";
 import StateBirth from "../../components/Form/StateBirth";
 import SimpleAlert from "../../components/SimpleAlert";
+import useSmall from "../../hooks/breakpoint/useSmall";
 import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
-
-import Chip from "@mui/material/Chip";
-import CircularProgress from "@mui/material/CircularProgress";
-import { useTheme } from "@mui/material/styles";
-import { Navigate, useParams } from "react-router-dom";
-import useSWR from "swr";
-import useSmall from "../../hooks/breakpoint/useSmall";
 import { getBanner, getButtonsFooter, getFooter } from "./functions";
 
 const sortedFields = [
@@ -77,14 +77,14 @@ const sortedFields = [
 ];
 
 function useLoadForm() {
-    const [form] = useLocalStorage("form", {});
+    const [form, saveForm] = useLocalStorage("form", {});
 
     const expires = form.expires ? dayjs(form.expires) : null;
     const isAfter = expires ? dayjs().isAfter(expires) : false;
 
     // Si expira el form, se limpia
-    if (expires && isAfter) return {};
-    return form.values;
+    if (expires && isAfter) return [{}, saveForm];
+    return [form.values, saveForm];
 }
 
 function useSaveForm() {
@@ -222,27 +222,19 @@ function FullScreenDialog() {
         setAlert({ message, open: true, severity });
     };
 
-    const form = useLoadForm();
+    const [form, saveForm] = useLoadForm();
 
     const renderCount = useRenderCount();
     const methods = useForm({ mode: "onBlur", defaultValues: form });
-    const { reset, handleSubmit } = methods;
+    const { handleSubmit } = methods;
 
     const theme = useTheme();
     const small = useSmall();
 
     const onCancel = () => {
         setSending(true);
-        reset(
-            { countryExpedition: "CO" },
-            {
-                keepValues: false,
-                keepDefaultValues: false,
-            },
-        );
-        // window.localStorage.removeItem("form");
-        // window.sessionStorage.removeItem("form");
-        setTimeout(() => window.location.reload(), 750);
+        saveForm({});
+        setTimeout(() => location.reload(), 750);
     };
 
     const onSubmit = (data) => {
