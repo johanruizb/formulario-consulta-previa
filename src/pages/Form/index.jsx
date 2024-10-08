@@ -134,7 +134,7 @@ export default function FormularioRegistro() {
     );
 
     if (!["20hr", "20hr-institucional"].includes(curso))
-        return <Navigate to="/" />;
+        return <Navigate to="/20hr" />;
 
     return isLoading ? (
         <Stack
