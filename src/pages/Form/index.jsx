@@ -46,7 +46,13 @@ import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
-import { getBanner, getButtonsFooter, getFooter } from "./functions";
+import {
+    getBanner,
+    getButtonsFooter,
+    getFooter,
+    replaceAllSpaces,
+    toUpperCase,
+} from "./functions";
 
 const sortedFields = [
     "firstName",
@@ -382,16 +388,7 @@ function FullScreenDialog() {
                                                 field: {
                                                     label: "Nombres",
                                                     required: true,
-                                                    onChange: (
-                                                        e,
-                                                        onChangeController,
-                                                    ) =>
-                                                        onChangeController(
-                                                            (
-                                                                e.target
-                                                                    .value || ""
-                                                            ).toUpperCase(),
-                                                        ),
+                                                    onChange: toUpperCase,
                                                 },
                                                 formRef,
                                             }}
@@ -429,16 +426,7 @@ function FullScreenDialog() {
                                                 field: {
                                                     label: "Apellidos",
                                                     required: true,
-                                                    onChange: (
-                                                        e,
-                                                        onChangeController,
-                                                    ) =>
-                                                        onChangeController(
-                                                            (
-                                                                e.target
-                                                                    .value || ""
-                                                            ).toUpperCase(),
-                                                        ),
+                                                    onChange: toUpperCase,
                                                 },
                                                 formRef,
                                             }}
@@ -525,6 +513,7 @@ function FullScreenDialog() {
                                                 field: {
                                                     label: "Número de documento",
                                                     required: true,
+                                                    onBlur: replaceAllSpaces,
                                                 },
                                                 formRef,
                                             }}
@@ -776,16 +765,7 @@ function FullScreenDialog() {
                                                 },
                                                 field: {
                                                     label: "Nombre de la entidad u organización que representa",
-                                                    onChange: (
-                                                        e,
-                                                        onChangeController,
-                                                    ) =>
-                                                        onChangeController(
-                                                            (
-                                                                e.target
-                                                                    .value || ""
-                                                            ).toUpperCase(),
-                                                        ),
+                                                    onChange: toUpperCase,
                                                 },
                                                 formRef,
                                             }}
@@ -934,6 +914,7 @@ function FullScreenDialog() {
                                                 field: {
                                                     label: "Correo electrónico",
                                                     required: true,
+                                                    onBlur: replaceAllSpaces,
                                                 },
                                                 formRef,
                                             }}

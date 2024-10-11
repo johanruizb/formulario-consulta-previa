@@ -3,6 +3,7 @@ import BasicTextField from "../Fields/TextField";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import PropTypes from "prop-types";
+import { toUpperCase } from "../../pages/Form/functions";
 
 function OtherGender({ formRef }) {
     const { control } = useFormContext();
@@ -36,10 +37,7 @@ function OtherGender({ formRef }) {
                         field: {
                             label: "Otro (especificar)",
                             required: true,
-                            onChange: (e, onChangeController) =>
-                                onChangeController(
-                                    (e.target.value || "").toUpperCase(),
-                                ),
+                            onChange: toUpperCase,
                         },
                         formRef,
                     }}

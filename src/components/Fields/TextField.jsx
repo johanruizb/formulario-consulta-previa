@@ -16,7 +16,12 @@ export default function BasicTextField({ slotProps }) {
 
     const {
         controller: controllerProps,
-        field: { InputProps, onChange: onChangeField, ...fieldProps },
+        field: {
+            InputProps,
+            onChange: onChangeField,
+            onBlur: onBlurField,
+            ...fieldProps
+        },
         formRef,
     } = slotProps;
 
@@ -24,7 +29,10 @@ export default function BasicTextField({ slotProps }) {
         <Controller
             control={control}
             render={({ field, fieldState: { error } }) => {
-                const { onChange: onChangeController } = field;
+                const {
+                    onChange: onChangeController,
+                    onBlur: onBlurController,
+                } = field;
                 return (
                     <TextField
                         {...field}
@@ -33,8 +41,15 @@ export default function BasicTextField({ slotProps }) {
                             field.ref(el);
                         }}
                         onChange={(e) =>
-                            onChangeField?.(e, onChangeController) ||
-                            onChangeController(e)
+                            onChangeField?.(e, {
+                                onChange: onChangeController,
+                            }) || onChangeController(e)
+                        }
+                        onBlur={(e) =>
+                            onBlurField?.(e, {
+                                onBlur: onBlurController,
+                                onChange: onChangeController,
+                            }) || onBlurController(e)
                         }
                         variant="outlined"
                         error={Boolean(error?.type || error?.types)}

@@ -3,6 +3,7 @@ import BasicTextField from "../Fields/TextField";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import PropTypes from "prop-types";
+import { toUpperCase } from "../../pages/Form/functions";
 
 function OtherConnectivity({ formRef }) {
     const { control } = useFormContext();
@@ -40,10 +41,7 @@ function OtherConnectivity({ formRef }) {
                         field: {
                             label: "Otra conectividad (especificar)",
                             required: true,
-                            onChange: (e, onChangeController) =>
-                                onChangeController(
-                                    (e.target.value || "").toUpperCase(),
-                                ),
+                            onChange: toUpperCase,
                         },
                         formRef,
                     }}
