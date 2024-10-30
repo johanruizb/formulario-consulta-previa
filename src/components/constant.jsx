@@ -72,7 +72,7 @@ const FORM_FIELDS_LABELS = {
     gender_other: "Otro (especifique)",
     ethnicity: "Etnia",
     entityName: "Nombre de la entidad u organización que representa",
-    typeEntity: "De los siguientes roles en cual se reconoce",
+    typeEntity: "De los siguientes roles en cual se reconoce?",
     phoneNumber: "Número de teléfono",
     whatsappNumber: "Número de WhatsApp",
     email: "Correo electrónico",
