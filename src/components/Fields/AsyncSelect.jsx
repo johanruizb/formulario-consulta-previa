@@ -49,7 +49,7 @@ Counter.propTypes = {
     className: PropTypes.string,
 };
 
-export default function AsyncSelect({ slotProps, fetchProps }) {
+export default function AsyncSelect({ slotProps, fetchProps = {} }) {
     const renderCount = useRenderCount();
 
     const { control } = useFormContext();
@@ -60,7 +60,9 @@ export default function AsyncSelect({ slotProps, fetchProps }) {
     } = slotProps;
 
     const [options, setOptions] = useState();
-    const { url: fetchURL, options: fetchOptions } = fetchProps;
+
+    const fetchURL = fetchProps?.url ?? slotProps?.fetch?.url;
+    const fetchOptions = fetchProps?.options ?? slotProps?.fetch?.options;
 
     useEffect(() => {
         if (fetchURL) {
@@ -138,9 +140,13 @@ AsyncSelect.propTypes = {
         controller: PropTypes.object.isRequired,
         field: PropTypes.object.isRequired,
         formRef: PropTypes.any,
+        fetch: PropTypes.shape({
+            url: PropTypes.string,
+            options: PropTypes.object,
+        }),
     }).isRequired,
     fetchProps: PropTypes.shape({
         url: PropTypes.string,
         options: PropTypes.object,
-    }).isRequired,
+    }),
 };

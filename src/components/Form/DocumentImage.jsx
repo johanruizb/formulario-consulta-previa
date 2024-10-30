@@ -247,7 +247,9 @@ BackDocumentImage.propTypes = {
     formRef: PropTypes.any,
 };
 
-function DocumentImage({ formRef }) {
+function DocumentImage({ slotProps }) {
+    const { formRef } = slotProps;
+
     return (
         <Grid container spacing={1.25}>
             <Grid
@@ -271,7 +273,9 @@ function DocumentImage({ formRef }) {
 }
 
 DocumentImage.propTypes = {
-    formRef: PropTypes.any,
+    slotProps: PropTypes.shape({
+        formRef: PropTypes.any,
+    }),
 };
 
 export default DocumentImage;

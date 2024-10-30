@@ -1,4 +1,5 @@
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import Box from "@mui/material/Box";
 import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -21,55 +22,65 @@ export default function CheckboxField({ slotProps }) {
         <Controller
             control={control}
             render={({ field, fieldState: { error } }) => (
-                <FormControl
-                    component="fieldset"
-                    variant="outlined"
-                    error={Boolean(error?.type || error?.types)}
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        width: "100%",
+                    }}
                 >
-                    <FormLabel component="legend">
-                        Politica de privacidad *
-                    </FormLabel>
-                    <FormGroup>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    {...field}
-                                    checked={field.value}
-                                    ref={(el) => {
-                                        if (formRef)
-                                            formRef.current[field.name] = el;
-                                        field.ref(el);
-                                    }}
-                                />
-                            }
-                            label={
-                                <Typography>
-                                    Acepto la{" "}
-                                    <Link
-                                        href="https://www.univalle.edu.co/politica-de-tratamiento-de-la-informacion-personal"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        politica de tratamiento datos personales
-                                        <OpenInNewIcon
-                                            sx={{
-                                                fontSize: "14px",
-                                            }}
-                                        />
-                                    </Link>
-                                    *
-                                </Typography>
-                            }
-                        />
-                    </FormGroup>
-                    <FormHelperText
-                        sx={{
-                            textAlign: "center",
-                        }}
+                    <FormControl
+                        component="fieldset"
+                        variant="outlined"
+                        error={Boolean(error?.type || error?.types)}
                     >
-                        {error?.message ?? " "}
-                    </FormHelperText>
-                </FormControl>
+                        <FormLabel component="legend">
+                            Politica de privacidad *
+                        </FormLabel>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        {...field}
+                                        checked={field.value}
+                                        ref={(el) => {
+                                            if (formRef)
+                                                formRef.current[field.name] =
+                                                    el;
+                                            field.ref(el);
+                                        }}
+                                    />
+                                }
+                                label={
+                                    <Typography>
+                                        Acepto la{" "}
+                                        <Link
+                                            href="https://www.univalle.edu.co/politica-de-tratamiento-de-la-informacion-personal"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            politica de tratamiento datos
+                                            personales
+                                            <OpenInNewIcon
+                                                sx={{
+                                                    fontSize: "14px",
+                                                }}
+                                            />
+                                        </Link>
+                                        *
+                                    </Typography>
+                                }
+                            />
+                        </FormGroup>
+                        <FormHelperText
+                            sx={{
+                                textAlign: "center",
+                            }}
+                        >
+                            {error?.message ?? " "}
+                        </FormHelperText>
+                    </FormControl>
+                </Box>
             )}
             {...controllerProps}
         />
