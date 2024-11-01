@@ -1,9 +1,10 @@
 import { Turnstile } from "@marsidev/react-turnstile";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import WarningIcon from "@mui/icons-material/Warning";
+
 import SaveIcon from "@mui/icons-material/Save";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -31,7 +32,9 @@ import useSWR from "swr";
 
 import { FORM_FIELDS_LABELS, URI } from "../../components/constant";
 import Redirect from "../../components/Form/Redirect";
+import Loging from "../../components/Loging";
 import useSmall from "../../hooks/breakpoint/useSmall";
+import fetcher from "../../hooks/request/config";
 import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
@@ -121,11 +124,59 @@ function scrollIntoError(keys, formRef) {
 
 export default function FormularioRegistro() {
     const { curso = "20hr" } = useParams();
-    const { data, isLoading, error } = useSWR(
+    const { data, isLoading, isValidating, error } = useSWR(
         URI.API + "/inscripcion/cupos/" + curso,
+        fetcher,
+        { refreshInterval: 0 },
     );
 
     Redirect();
+
+    if (error)
+        return (
+            <Stack
+                alignItems="center"
+                justifyContent="center"
+                sx={{
+                    position: "fixed",
+                    width: "100%",
+                    height: "100%",
+                }}
+            >
+                <Stack direction="row" alignItems="center" spacing={1.25}>
+                    <Typography
+                        // variant="h4"
+                        textAlign="center"
+                        fontFamily="monospace"
+                        sx={{
+                            fontWeight: "bold",
+                            fontSize: 24,
+                        }}
+                    >
+                        Error {error?.status || -1}
+                    </Typography>
+                    {isValidating ? (
+                        <CircularProgress size={24} />
+                    ) : (
+                        <WarningIcon
+                            color="warning"
+                            sx={{
+                                fontSize: 24,
+                            }}
+                        />
+                    )}
+                </Stack>
+                <Typography
+                    // variant="h6"
+                    textAlign="center"
+                    fontFamily="monospace"
+                >
+                    Lo sentimos, ha ocurrido un error inesperado en el servidor.
+                    Por favor, inténtalo de nuevo más tarde.
+                </Typography>
+                <Loging error={error} visible />
+            </Stack>
+        );
 
     return isLoading ? (
         <Stack
@@ -141,7 +192,7 @@ export default function FormularioRegistro() {
         </Stack>
     ) : data?.curso_disponible === true ? (
         <FullScreenDialog />
-    ) : data?.curso_disponible === false ? (
+    ) : (
         <Stack
             alignItems="center"
             justifyContent="center"
@@ -157,35 +208,6 @@ export default function FormularioRegistro() {
             <Typography variant="h6" textAlign="center">
                 No hay cupos disponibles para este curso
             </Typography>
-        </Stack>
-    ) : (
-        <Stack
-            alignItems="center"
-            justifyContent="center"
-            sx={{
-                position: "fixed",
-                width: "100%",
-                height: "100%",
-            }}
-        >
-            <Typography variant="h4" textAlign="center">
-                Error {error?.status || 500}
-            </Typography>
-            <Typography variant="h6" textAlign="center">
-                Se ha presentado un error al verificar los cupos disponibles
-            </Typography>
-            {error.statusText && (
-                <Chip
-                    label={String(error.statusText)
-                        .toUpperCase()
-                        .replaceAll(" ", "_")}
-                    sx={{
-                        position: "fixed",
-                        bottom: 0,
-                        mb: 2,
-                    }}
-                />
-            )}
         </Stack>
     );
 }
