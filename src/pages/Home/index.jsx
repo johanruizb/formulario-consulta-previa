@@ -29,13 +29,7 @@ export default function Home() {
     };
 
     return (
-        // <Box>
-        <Paper
-            // sx={{
-            //     p: 1.25,
-            // }}
-            elevation={0}
-        >
+        <Paper elevation={0}>
             <DialogTitle>Cursos disponibles</DialogTitle>
             <DialogContent>
                 <Grid
@@ -188,6 +182,5 @@ export default function Home() {
                 </Grid>
             </DialogContent>
         </Paper>
-        // </Box>
     );
 }
