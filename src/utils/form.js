@@ -12,7 +12,9 @@ function blobToArrayBuffer(blob) {
 function formDataFromObject(obj) {
     const formData = new FormData();
     for (const key in obj) {
-        formData.append(key, obj[key]);
+        if (Array.isArray(obj[key]))
+            formData.append(key, JSON.stringify(obj[key]));
+        else formData.append(key, obj[key]);
     }
     return formData;
 }
