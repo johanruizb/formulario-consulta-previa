@@ -96,7 +96,7 @@ function useSaveForm() {
                 JSON.stringify({
                     values,
                     expires: dayjs().add(1, "hour").format(),
-                })
+                }),
             );
         };
 
@@ -126,7 +126,7 @@ export default function FormularioRegistro() {
     const { curso = "20hr" } = useParams();
     const { data, isLoading, isValidating, error } = useSWR(
         URI.API + "/inscripcion/cupos/" + curso,
-        fetcher
+        fetcher,
     );
 
     Redirect();
@@ -252,7 +252,7 @@ function FullScreenDialog() {
                 setTimeout(() => {
                     if (response.ok) {
                         onOpenAlert(
-                            "Sus datos han sido registrados. El equipo del proyecto se pondrá en contacto con usted en los próximos días para brindarle más información"
+                            "Sus datos han sido registrados. El equipo del proyecto se pondrá en contacto con usted en los próximos días para brindarle más información",
                         );
                         onCancel();
                     } else {
@@ -264,13 +264,13 @@ function FullScreenDialog() {
                                         `Algo ha fallado al registrarse (${
                                             response.status
                                         }_${response.statusText.toUpperCase()})`,
-                                    true
+                                    true,
                                 );
                             })
                             .catch(() => {
                                 onOpenAlert(
                                     "No se ha obtenido respuesta del servidor",
-                                    true
+                                    true,
                                 );
                             })
                             .finally(() => {
@@ -301,7 +301,7 @@ function FullScreenDialog() {
         onOpenAlert(
             "Por favor verifica los campos: \n" + fields,
             "error",
-            "El formulario contiene errores"
+            "El formulario contiene errores",
         );
         scrollIntoError(keys, formRef);
     };
@@ -359,7 +359,7 @@ function FullScreenDialog() {
                         <FormProvider {...methods}>
                             <Box component="form" autoComplete="one-time-code">
                                 <Grid container spacing={1.25}>
-                                    {Formularios[curso].map((field, index) => {
+                                    {Formularios[curso]?.map((field, index) => {
                                         const {
                                             Component,
                                             gridless = false,
@@ -438,7 +438,7 @@ function FullScreenDialog() {
                         justifyContent: "space-between",
                         backgroundImage: `url(${getButtonsFooter(
                             curso,
-                            small
+                            small,
                         )})`,
                         backgroundSize: "cover",
                     }}
@@ -464,7 +464,11 @@ function FullScreenDialog() {
                                 onClick={onCancel}
                                 startIcon={<DeleteForeverIcon />}
                                 sx={{
-                                    color: "white",
+                                    color: window.location.pathname.includes(
+                                        "20hr",
+                                    )
+                                        ? "white"
+                                        : "black",
                                 }}
                             >
                                 Limpiar formulario
@@ -474,7 +478,11 @@ function FullScreenDialog() {
                                 endIcon={<SaveIcon />}
                                 disabled={disabled}
                                 sx={{
-                                    color: "white",
+                                    color: window.location.pathname.includes(
+                                        "20hr",
+                                    )
+                                        ? "white"
+                                        : "black",
                                 }}
                             >
                                 Registrarse
