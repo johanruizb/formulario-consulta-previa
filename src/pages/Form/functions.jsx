@@ -1,9 +1,11 @@
+// Curso - Grupos etnicos
 import CursoBanner from "../../assets/curso/banner.jpg";
 import CursoSmallBanner from "../../assets/curso/sm_banner.jpg";
 
 import CursoFooter from "../../assets/curso/footer.jpg";
 import CursoSmallFooter from "../../assets/curso/sm_footer.jpg";
 
+// Curso - Funcionarios
 import DiplomadoBanner from "../../assets/diplomado/banner.jpg";
 import DiplomadoSmallBanner from "../../assets/diplomado/sm_banner.jpg";
 
@@ -11,9 +13,18 @@ import DiplomadoFooter from "../../assets/diplomado/footer.jpg";
 import DiplomadoSmallFooter from "../../assets/diplomado/sm_footer.jpg";
 
 // Botones
-
 import CursoBotones from "../../assets/curso/sm_botones.jpg";
 import DiplomadoBotones from "../../assets/diplomado/sm_botones.jpg";
+
+// Diplomado - Grupos etnicos
+import DiplomadoGE from "../../assets/diplomado-etnicos/banner.jpg";
+import DiplomadoGESmall from "../../assets/diplomado-etnicos/sm_banner.jpg";
+
+import DiplomadoGEFooter from "../../assets/diplomado-etnicos/footer.jpg";
+import DiplomadoGESmallFooter from "../../assets/diplomado-etnicos/sm_footer.jpg";
+
+// Diplomado - botones
+import DiplomadoGEBotones from "../../assets/diplomado-etnicos/sm_footer.jpg";
 
 function getBanner(curso, small) {
     switch (curso) {
@@ -21,6 +32,8 @@ function getBanner(curso, small) {
             return small ? CursoSmallBanner : CursoBanner;
         case "20hr-institucional":
             return small ? DiplomadoSmallBanner : DiplomadoBanner;
+        case "diplomado-etnicos":
+            return small ? DiplomadoGESmall : DiplomadoGE;
     }
 }
 
@@ -30,6 +43,8 @@ function getFooter(curso, small) {
             return small ? CursoSmallFooter : CursoFooter;
         case "20hr-institucional":
             return small ? DiplomadoSmallFooter : DiplomadoFooter;
+        case "diplomado-etnicos":
+            return small ? DiplomadoGESmallFooter : DiplomadoGEFooter;
     }
 }
 
@@ -39,6 +54,8 @@ function getButtonsFooter(curso, small) {
             return small ? CursoBotones : CursoFooter;
         case "20hr-institucional":
             return small ? DiplomadoBotones : DiplomadoFooter;
+        case "diplomado-etnicos":
+            return small ? DiplomadoGEBotones : DiplomadoGEFooter;
     }
 }
 
