@@ -179,6 +179,154 @@ export default function Home() {
                             </Typography>
                         </CourseCard>
                     </Grid>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6,
+                        }}
+                    >
+                        <CourseCard
+                            slotProps={{
+                                fetcher: {
+                                    uri: "/inscripcion/cupos/diplomado-etnicos",
+                                },
+                                cardHeader: {
+                                    title: "Diplomado de autoformación en Consulta Previa",
+                                    subheader: "Diciembre 16, 2024",
+                                    avatar: (
+                                        <Avatar sx={{ bgcolor: "#0A64BD" }}>
+                                            3
+                                        </Avatar>
+                                    ),
+                                },
+                                cardMedia: {
+                                    image: getBanner(
+                                        "diplomado-etnicos",
+                                        small,
+                                    ),
+                                    alt: "Banner de consulta previa del diplomado de 120 horas, dirigido a ciudadanos en general.",
+                                },
+                                button: {
+                                    to: "diplomado-etnicos",
+                                },
+                                shareButton: {
+                                    onClick: () =>
+                                        onShare(
+                                            "https://registro.consultaprevia.co/diplomado-etnicos",
+                                        ),
+                                },
+                            }}
+                        >
+                            <Typography variant="body2">
+                                <strong>Nombre del curso:</strong> Diplomado de
+                                autoformación en Consulta Previa
+                                <br />
+                                <strong>Objetivo:</strong> Promover en los
+                                participantes la compresión y promoción de la
+                                Consulta Previa como Derecho Fundamental para la
+                                protección y defensa de los grupos Étnicos.
+                                <br />
+                                <strong>Dirigido a:</strong> Miembros de grupos
+                                étnicos, ejecutores, institucionalidad
+                                interviniente y ciudadanos en general.
+                                <br />
+                                <strong>Duración:</strong> 120 horas
+                                <br />
+                                <strong>Modalidad:</strong> 100% Virtual –
+                                Autogestionado
+                                <br />
+                                <strong>Contenidos:</strong>
+                                <br />
+                            </Typography>
+                            <Typography variant="body2" sx={{ ml: 2 }}>
+                                ● Qué es la consulta previa y sus alcances
+                                <br />● Principios orientadores de la Consulta
+                                Previa y Actores
+                                <br />
+                                ● Principales instrumentos jurídicos de la
+                                Consulta Previa
+                                <br />● Etapas de la Consulta Previa
+                            </Typography>
+                        </CourseCard>
+                    </Grid>
+                    {/* <Grid
+                        size={{
+                            xs: 12,
+                            md: 6,
+                        }}
+                    >
+                        <CourseCard
+                            slotProps={{
+                                fetcher: {
+                                    uri: "/inscripcion/cupos/diplomado-funcionarios",
+                                },
+                                card: {
+                                    elevation: 3,
+                                    sx: {
+                                        borderColor: "#FF9F00",
+                                    },
+                                },
+                                cardHeader: {
+                                    title: "Diplomado de autoformación en consulta previa para fortalecimiento de capacidades institucionales",
+                                    subheader: "Diciembre 16, 2024",
+                                    avatar: (
+                                        <Avatar sx={{ bgcolor: "#FF9F00" }}>
+                                            4
+                                        </Avatar>
+                                    ),
+                                },
+                                cardMedia: {
+                                    image: getBanner(
+                                        "diplomado-funcionarios",
+                                        small
+                                    ),
+                                    alt: "Banner de consulta previa del diplomado de 120 horas, dirigido a funcionarios públicos.",
+                                },
+                                button: {
+                                    to: "diplomado-funcionarios",
+                                },
+                                shareButton: {
+                                    onClick: () =>
+                                        onShare(
+                                            "https://registro.consultaprevia.co/diplomado-funcionarios"
+                                        ),
+                                },
+                            }}
+                        >
+                            <Typography variant="body2">
+                                <strong>Nombre del curso:</strong> Diplomado de
+                                autoformación en consulta previa para
+                                fortalecimiento de capacidades institucionales
+                                <br />
+                                <strong>Objetivo:</strong> Fortalecer
+                                conocimientos y desarrollar habilidades para el
+                                acompañamiento a los procesos y procedimientos
+                                de la Consulta Previa.
+                                <br />
+                                <strong>Dirigido a:</strong> Contratista y
+                                funcionarios del Ministerio del Interior
+                                <br />
+                                <strong>Duración:</strong> 120 horas
+                                <br />
+                                <strong>Modalidad:</strong> 100% Virtual –
+                                Autogestionado
+                                <br />
+                                <strong>Contenidos:</strong>
+                                <br />
+                            </Typography>
+                            <Typography variant="body2" sx={{ ml: 2 }}>
+                                ● Qué es la Consulta Previa y sus antecedentes.
+                                <br />
+                                ● Procedimiento para la implementación de la
+                                Consulta Previa en Colombia.
+                                <br />
+                                ● Buenas y Malas Prácticas en el proceso de
+                                Consulta Previa
+                                <br />● Técnicas de negociación en el proceso de
+                                Consulta Previa.
+                            </Typography>
+                        </CourseCard>
+                    </Grid> */}
                 </Grid>
             </DialogContent>
         </Paper>
