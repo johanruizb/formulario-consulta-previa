@@ -30,7 +30,9 @@ export default function SimpleAlert({
                     variant="filled"
                     sx={{ width: "100%" }}
                 >
-                    {message}
+                    {message.split("\n").map((line, index) => (
+                        <span key={index}>{line}</span>
+                    ))}
                 </Alert>
             </Snackbar>
         )
