@@ -242,19 +242,21 @@ function FullScreenDialog() {
     };
 
     const onSubmit = (data) => {
+        if (isProduction) setSending(true);
         const start = dayjs();
-        setSending(true);
+
         const formData = formDataFromObject({ ...data, curso });
+
         INSCRIPCION.registrar(formData)
             .then((response) => {
-                const timeout = getTimeout(start);
-
-                setTimeout(() => {
+                setTimeout(async () => {
                     if (response.ok) {
+                        const res = await response.json();
                         onOpenAlert(
-                            "Sus datos han sido registrados. El equipo del proyecto se pondrá en contacto con usted en los próximos días para brindarle más información",
+                            res.message ??
+                                "Sus datos han sido registrados. El equipo del proyecto se pondrá en contacto con usted en los próximos días para brindarle más información",
                         );
-                        onCancel();
+                        if (isProduction) onCancel();
                     } else {
                         response
                             ?.json()
@@ -278,7 +280,7 @@ function FullScreenDialog() {
                             });
                         setSending(false);
                     }
-                }, timeout);
+                }, getTimeout(start));
             })
             .catch(() => {
                 onOpenAlert("Ha ocurrido un error en el servidor", true);
