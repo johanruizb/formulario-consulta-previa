@@ -1,12 +1,20 @@
-import { Navigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import PropTypes from "prop-types";
 
-function Redirect({ to = "/20hr" } = {}) {
+function Redirect({ to = "/404" } = {}) {
     const { curso = "20hr" } = useParams();
+    const navigate = useNavigate();
 
-    if (!["20hr", "20hr-institucional"].includes(curso))
-        return <Navigate to={to} />;
+    if (
+        ![
+            "diplomado-etnicos",
+            // "diplomado-funcionarios",
+            "20hr",
+            "20hr-institucional",
+        ].includes(curso)
+    )
+        navigate(to, { replace: true });
 }
 
 Redirect.propTypes = {
