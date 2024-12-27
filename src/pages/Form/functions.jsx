@@ -17,8 +17,8 @@ import CursoBotones from "../../assets/curso/sm_botones.jpg";
 import DiplomadoBotones from "../../assets/diplomado/sm_botones.jpg";
 
 // Diplomado - Grupos etnicos
-import DiplomadoGE from "../../assets/diplomado-etnicos/banner.jpg";
-import DiplomadoGESmall from "../../assets/diplomado-etnicos/sm_banner.jpg";
+import DiplomadoGE from "../../assets/diplomado-etnicos/banner.png";
+import DiplomadoGESmall from "../../assets/diplomado-etnicos/sm_banner.png";
 
 import DiplomadoGEFooter from "../../assets/diplomado-etnicos/footer.jpg";
 import DiplomadoGESmallFooter from "../../assets/diplomado-etnicos/sm_footer.jpg";
@@ -32,7 +32,7 @@ function getBanner(curso, small) {
             return small ? CursoSmallBanner : CursoBanner;
         case "20hr-institucional":
             return small ? DiplomadoSmallBanner : DiplomadoBanner;
-        case "diplomado-etnicos":
+        case "diplomado":
             return small ? DiplomadoGESmall : DiplomadoGE;
     }
 }
@@ -43,7 +43,7 @@ function getFooter(curso, small) {
             return small ? CursoSmallFooter : CursoFooter;
         case "20hr-institucional":
             return small ? DiplomadoSmallFooter : DiplomadoFooter;
-        case "diplomado-etnicos":
+        case "diplomado":
             return small ? DiplomadoGESmallFooter : DiplomadoGEFooter;
     }
 }
@@ -54,7 +54,7 @@ function getButtonsFooter(curso, small) {
             return small ? CursoBotones : CursoFooter;
         case "20hr-institucional":
             return small ? DiplomadoBotones : DiplomadoFooter;
-        case "diplomado-etnicos":
+        case "diplomado":
             return small ? DiplomadoGEBotones : DiplomadoGEFooter;
     }
 }

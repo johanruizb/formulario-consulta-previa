@@ -188,7 +188,7 @@ export default function Home() {
                         <CourseCard
                             slotProps={{
                                 fetcher: {
-                                    uri: "/inscripcion/cupos/diplomado-etnicos",
+                                    uri: "/inscripcion/cupos/diplomado",
                                 },
                                 cardHeader: {
                                     title: "Diplomado de autoformación en Consulta Previa",
@@ -201,18 +201,18 @@ export default function Home() {
                                 },
                                 cardMedia: {
                                     image: getBanner(
-                                        "diplomado-etnicos",
+                                        "diplomado",
                                         small,
                                     ),
                                     alt: "Banner de consulta previa del diplomado de 120 horas, dirigido a ciudadanos en general.",
                                 },
                                 button: {
-                                    to: "diplomado-etnicos",
+                                    to: "diplomado",
                                 },
                                 shareButton: {
                                     onClick: () =>
                                         onShare(
-                                            "https://registro.consultaprevia.co/diplomado-etnicos",
+                                            "https://registro.consultaprevia.co/diplomado",
                                         ),
                                 },
                             }}

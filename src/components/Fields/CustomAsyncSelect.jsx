@@ -113,7 +113,7 @@ function AsyncSelect({ slotProps }) {
                                 field.ref(el);
                             }}
                         >
-                            {fieldProps?.options?.map((option) => (
+                            {fieldProps?.options?.length > 0 && fieldProps?.options?.map((option) => (
                                 <MenuItem
                                     key={option.id}
                                     value={option.iso2 ?? option.id}

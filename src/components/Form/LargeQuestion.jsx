@@ -17,6 +17,7 @@ function LargeQuestion({ slotProps }) {
             control={control}
             render={({ field, fieldState: { error } }) => (
                 <FormControl
+                    sx={slotProps?.class}
                     required
                     fullWidth
                     error={Boolean(error?.type || error?.types)}

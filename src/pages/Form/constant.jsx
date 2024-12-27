@@ -1304,7 +1304,7 @@ const Formularios = {
             gridless: true,
         },
     ],
-    "diplomado-etnicos": [
+    "diplomado": [
         {
             Component: BasicTextField,
             controller: {
@@ -1664,40 +1664,32 @@ const Formularios = {
             field: {
                 options: [
                     {
-                        value: 1,
-                        label: "Comunidad Negro(a) afrocolombiano(a) o afrodescendiente",
+                        value: 12,
+                        label: "Educadores o profesores",
                     },
                     {
-                        value: 2,
-                        label: "Comunidad Indígena",
+                        value: 13,
+                        label: "Estudiantes universitarios",
                     },
                     {
-                        value: 3,
-                        label: "Ejecutores de procesos Consulta Previa",
-                    },
-                    {
-                        value: 4,
-                        label: "Institucionalidad interviniente en Consulta Previa",
-                    },
-                    // {
-                    //     value: 5,
-                    //     label: "Contratista del Ministerio del Interior",
-                    // },
-                    // {
-                    //     value: 6,
-                    //     label: "Funcionarios Ministerio del Interior",
-                    // },
-                    {
-                        value: 7,
-                        label: "Población civil",
+                        value: 14,
+                        label: "Líder/lideresa comunitaria",
                     },
                     {
                         value: 8,
                         label: "Empresario",
                     },
                     {
-                        value: 9,
-                        label: "Educación",
+                        value: 15,
+                        label: "Funcionarios/contratistas del Ministerio del Interior",
+                    },
+                    {
+                        value: 16,
+                        label: "Funcionarios/contratistas de otra entidad pública ",
+                    },
+                    {
+                        value: 7,
+                        label: "Población civil",
                     },
                 ],
                 label: "De los siguientes roles en cuál se reconoce?",
@@ -1932,22 +1924,25 @@ const Formularios = {
             },
             gridless: true,
         },
-        // {
-        //     Component: LargeQuestion,
-        //     controller: {
-        //         name: "continuar_curso_120",
-        //         defaultValue: "",
-        //         rules: {
-        //             required: {
-        //                 value: true,
-        //                 message:
-        //                     "Es necesario responder la pregunta para continuar",
-        //             },
-        //         },
-        //     },
-        //     size: 12,
-        //     gridless: true,
-        // },
+        {
+            Component: LargeQuestion,
+            controller: {
+                name: "continuar_curso_120",
+                defaultValue: "No",
+                rules: {
+                    required: {
+                        value: true,
+                        message:
+                            "Es necesario responder la pregunta para continuar",
+                    },
+                },
+            },
+            size: 12,
+            gridless: true,
+            class: {
+                display: 'none'
+            }
+        },
         {
             Component: CheckboxField,
             controller: {
