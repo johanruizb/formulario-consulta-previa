@@ -42,6 +42,7 @@ import getTimeout from "../../utils/timeout";
 import Formularios from "./constant";
 import { getBanner, getButtonsFooter, getFooter } from "./functions";
 import DialogMessage from "./Success";
+import ValidateInfoData from "../Validated/index"
 
 const sortedFields = [
     "firstName",
@@ -321,6 +322,11 @@ function FullScreenDialog() {
     const Banner = getBanner(curso, small);
     const Footer = getFooter(curso, small);
 
+    const paramsValidate = {
+        curso: curso,
+        Banner: Banner
+    }
+
     return (
         <Fragment>
             {isDevelopment && (
@@ -423,6 +429,7 @@ function FullScreenDialog() {
                                 Imagen de freepik
                             </Link>
                         </Stack>
+                        <ValidateInfoData {...paramsValidate} />
                     </Box>
                     <Box
                         component="img"

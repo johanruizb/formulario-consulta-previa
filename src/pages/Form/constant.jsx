@@ -1928,7 +1928,7 @@ const Formularios = {
             Component: LargeQuestion,
             controller: {
                 name: "continuar_curso_120",
-                defaultValue: "No",
+                defaultValue: "no",
                 rules: {
                     required: {
                         value: true,
