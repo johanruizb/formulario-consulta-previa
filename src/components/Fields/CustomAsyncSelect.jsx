@@ -113,14 +113,15 @@ function AsyncSelect({ slotProps }) {
                                 field.ref(el);
                             }}
                         >
-                            {fieldProps?.options?.length > 0 && fieldProps?.options?.map((option) => (
-                                <MenuItem
-                                    key={option.id}
-                                    value={option.iso2 ?? option.id}
-                                >
-                                    {option.name}
-                                </MenuItem>
-                            ))}
+                            {fieldProps?.options?.length > 0 &&
+                                fieldProps?.options?.map((option) => (
+                                    <MenuItem
+                                        key={option.id}
+                                        value={option.iso2 ?? option.id}
+                                    >
+                                        {option.name}
+                                    </MenuItem>
+                                ))}
                         </Select>
                         <FormHelperText>{error?.message ?? " "}</FormHelperText>
                     </FormControl>

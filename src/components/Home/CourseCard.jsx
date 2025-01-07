@@ -33,8 +33,8 @@ export default function CourseCard({ slotProps, children }) {
     const small = useSmall();
 
     const isDisableButton = (curso) => {
-        return (curso.fetcher.uri !== '/inscripcion/cupos/diplomado')
-    }
+        return curso.fetcher.uri !== "/inscripcion/cupos/diplomado";
+    };
 
     return (
         <Card

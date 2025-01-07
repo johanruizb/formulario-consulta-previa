@@ -200,10 +200,7 @@ export default function Home() {
                                     ),
                                 },
                                 cardMedia: {
-                                    image: getBanner(
-                                        "diplomado",
-                                        small,
-                                    ),
+                                    image: getBanner("diplomado", small),
                                     alt: "Banner de consulta previa del diplomado de 120 horas, dirigido a ciudadanos en general.",
                                 },
                                 button: {

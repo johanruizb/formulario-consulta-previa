@@ -42,7 +42,7 @@ import getTimeout from "../../utils/timeout";
 import Formularios from "./constant";
 import { getBanner, getButtonsFooter, getFooter } from "./functions";
 import DialogMessage from "./Success";
-import ValidateInfoData from "../Validated/index"
+import ValidateInfoData from "../Validated/index";
 
 const sortedFields = [
     "firstName",
@@ -125,7 +125,7 @@ function scrollIntoError(keys, formRef) {
 
 export default function FormularioRegistro() {
     const { curso = "20hr" } = useParams();
-    const [disabled] = useState(curso !== 'diplomado')
+    const [disabled] = useState(curso !== "diplomado");
     const { data, isLoading, isValidating, error } = useSWR(
         URI.API + "/inscripcion/cupos/" + curso,
         fetcher,
@@ -205,8 +205,8 @@ export default function FormularioRegistro() {
                 ¡Lo sentimos!
             </Typography>
             <Typography variant="h6" textAlign="center">
-                Las inscripciones para este curso han finalizado.
-                Gracias por tu interés. ¡Te esperamos en futuras ediciones!
+                Las inscripciones para este curso han finalizado. Gracias por tu
+                interés. ¡Te esperamos en futuras ediciones!
             </Typography>
         </Stack>
     ) : data?.curso_disponible === true ? (
@@ -343,8 +343,8 @@ function FullScreenDialog() {
     const paramsValidate = {
         curso: curso,
         Banner: Banner,
-        onOpenAlert: onOpenAlert
-    }
+        onOpenAlert: onOpenAlert,
+    };
 
     return (
         <Fragment>

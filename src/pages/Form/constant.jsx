@@ -1304,7 +1304,7 @@ const Formularios = {
             gridless: true,
         },
     ],
-    "diplomado": [
+    diplomado: [
         {
             Component: BasicTextField,
             controller: {
@@ -1940,8 +1940,8 @@ const Formularios = {
             size: 12,
             gridless: true,
             class: {
-                display: 'none'
-            }
+                display: "none",
+            },
         },
         {
             Component: CheckboxField,

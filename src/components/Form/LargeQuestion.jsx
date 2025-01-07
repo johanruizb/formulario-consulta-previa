@@ -82,7 +82,7 @@ LargeQuestion.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
         formRef: PropTypes.any,
-        class: PropTypes.object
+        class: PropTypes.object,
     }).isRequired,
 };
 

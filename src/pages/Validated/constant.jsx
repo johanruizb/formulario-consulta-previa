@@ -1,12 +1,12 @@
-import SearchFieldDoc from '../../components/Fields/SearchFieldDoc'
+import SearchFieldDoc from "../../components/Fields/SearchFieldDoc";
 
 export default {
-    'diplomado': [
+    diplomado: [
         {
             Component: SearchFieldDoc,
             controller: {
                 name: "birthdate",
-                defaultValue: ""
+                defaultValue: "",
             },
             field: {
                 label: "Buscar Documento",
@@ -14,5 +14,5 @@ export default {
                 required: true,
             },
         },
-    ]
-}
+    ],
+};
