@@ -125,6 +125,7 @@ function scrollIntoError(keys, formRef) {
 
 export default function FormularioRegistro() {
     const { curso = "20hr" } = useParams();
+    const [disabled] = useState(curso !== 'diplomado')
     const { data, isLoading, isValidating, error } = useSWR(
         URI.API + "/inscripcion/cupos/" + curso,
         fetcher,
@@ -189,6 +190,24 @@ export default function FormularioRegistro() {
             }}
         >
             <CircularProgress />
+        </Stack>
+    ) : disabled ? (
+        <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+                position: "fixed",
+                width: "100%",
+                height: "100%",
+            }}
+        >
+            <Typography variant="h4" textAlign="center">
+                ¡Lo sentimos!
+            </Typography>
+            <Typography variant="h6" textAlign="center">
+                Las inscripciones para este curso han finalizado.
+                Gracias por tu interés. ¡Te esperamos en futuras ediciones!
+            </Typography>
         </Stack>
     ) : data?.curso_disponible === true ? (
         <FullScreenDialog />
@@ -291,7 +310,6 @@ function FullScreenDialog() {
 
     const onError = (error) => {
         const keys = Object.keys(error);
-
         let fields = keys
             // .slice(0, 2)
             .map((key) => FORM_FIELDS_LABELS[key])
@@ -324,7 +342,8 @@ function FullScreenDialog() {
 
     const paramsValidate = {
         curso: curso,
-        Banner: Banner
+        Banner: Banner,
+        onOpenAlert: onOpenAlert
     }
 
     return (

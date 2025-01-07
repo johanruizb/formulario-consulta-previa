@@ -3,7 +3,7 @@ import React from 'react'
 import {Grid2, Box, Button} from '@mui/material'
 import styles from './styles.js'
 import Formularios from "./constant";
-import { onSubmit } from './functions'
+import { onSubmit,initShow, registerUsuer } from './functions'
 
 // Material IU
 import Snackbar from '@mui/material/Snackbar';
@@ -18,19 +18,30 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-const COURSE_AVALAIBLES = ['diplomado']
+// Days
+import dayjs from "dayjs";
+import { Turnstile } from "@marsidev/react-turnstile";
+import isProduction from "../../utils/isProduction";
+
+// Hoosk
+import { useLocalStorage } from "@uidotdev/usehooks";
+
+// PropTypes
+import PropTypes from "prop-types";
 
 /**
  * 
  * Validate If user have data 
  */
-export default function ValidateInfoData({ curso, Banner }) {
+export default function ValidateInfoData({ curso, Banner, onOpenAlert }) {
     // Use State
     const [open, setOpen] = React.useState(false)
     const [isSucess, setIsSucess] = React.useState(false)
     const [openDialog, setOpenDialog] = React.useState(false)
+    const [userFound, setUserFound] = React.useState(null)
     const [text, setText] = React.useState("")
-    const [showPreview, setShowPreview] = React.useState(COURSE_AVALAIBLES.includes(curso));
+    const [form] = useLoadForm();
+    const [showPreview, setShowPreview] = React.useState(initShow(curso,form));
 
     // Use Ref
     const formRef = React.useRef({});
@@ -46,12 +57,19 @@ export default function ValidateInfoData({ curso, Banner }) {
         textMenssage: text,
         setText: setText,
         setOpenDialog: setOpenDialog,
-        setShowPreview: setShowPreview
+        setShowPreview: setShowPreview,
+        setUserFound: setUserFound
     }
 
     const optionDialog = {
         open: openDialog,
         setOpen: setOpenDialog,
+        submit: registerUsuer,
+        data: userFound,
+        curso: curso,
+        onOpenAlert: onOpenAlert,
+        ref: formRef,
+        setUserFound: setUserFound
     }
 
     return (
@@ -109,10 +127,6 @@ export default function ValidateInfoData({ curso, Banner }) {
 
 function SimpleSnackbar({ open, setOpen, isSuccess,textMenssage}) {
 
-  const handleClick = () => {
-    setOpen(true);
-  };
-
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -153,15 +167,32 @@ function SimpleSnackbar({ open, setOpen, isSuccess,textMenssage}) {
 }
 
 
-function AlertDialog({ open, setOpen}) {
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+function AlertDialog({ open, setOpen, submit, data, curso, onOpenAlert, ref,setUserFound}) {
+  const [disabled,setDisabled] = React.useState(true)
 
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handlerSubmit = async () => {
+      setDisabled(true)
+      await submit(data, curso, onOpenAlert)
+      setTimeout(() => {
+        setDisabled(false)
+        setOpen(false);
+      }, 2000);
+  }
+
+  const onSuccess = (token) => {
+    data['turnstile_token'] = token
+    setUserFound(data)
+    setDisabled(false)
+    //methods.setValue("turnstile_token", token);
+  };
+
+  const onExpire = () => {
+    ref.current?.reset();
+};
 
   return (
     <React.Fragment>
@@ -172,17 +203,41 @@ function AlertDialog({ open, setOpen}) {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
+          {"Completa tu Inscripción al Diplomado"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
               Hemos encontrado un registro de tu información de otro curso. 
               ¿Te gustaría inscribirte en el diplomado y continuar tu aprendizaje?
+              <Grid2 size={12}>
+                  <Box
+                      component={Turnstile}
+                      onSuccess={onSuccess}
+                      onExpire={onExpire}
+                      options={{
+                          theme: "light",
+                          refreshExpired: "manual",
+                      }}
+                      ref={ref}
+                      label={`form_button_${window.location.hostname}`}
+                      siteKey={
+                          isProduction
+                              ? "0x4AAAAAAAiIftnN7i8Mr-yd"
+                              : "0x4AAAAAAAiIgbhjquURIMbK"
+                      }
+                      sx={{
+                          mb: 2,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                      }}
+                  />
+              </Grid2>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} autoFocus>Rechazar</Button>
-          <Button>
+          <Button onClick={handlerSubmit} disabled={disabled}>
              Registrarse
           </Button>
         </DialogActions>
@@ -190,3 +245,38 @@ function AlertDialog({ open, setOpen}) {
     </React.Fragment>
   );
 }
+
+function useLoadForm() {
+  const [form, saveForm] = useLocalStorage("form", {});
+
+  const expires = form.expires ? dayjs(form.expires) : null;
+  const isAfter = expires ? dayjs().isAfter(expires) : false;
+
+  // Si expira el form, se limpia
+  if (expires && isAfter) return [{}, saveForm];
+  return [form.values, saveForm];
+}
+
+ValidateInfoData.propTypes = {
+    curso: PropTypes.string,
+    Banner: PropTypes.string, 
+    onOpenAlert: PropTypes.func
+}
+
+SimpleSnackbar.propTypes = {
+  open: PropTypes.bool.isRequired,
+  setOpen: PropTypes.func.isRequired,
+  isSuccess: PropTypes.bool.isRequired, 
+  textMenssage: PropTypes.string.isRequired,
+};
+
+AlertDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  setOpen: PropTypes.func.isRequired,
+  submit: PropTypes.func.isRequired,
+  data: PropTypes.object,
+  curso: PropTypes.string.isRequired,
+  onOpenAlert: PropTypes.func.isRequired, 
+  ref: PropTypes.object.isRequired,
+  setUserFound: PropTypes.func.isRequired,
+};

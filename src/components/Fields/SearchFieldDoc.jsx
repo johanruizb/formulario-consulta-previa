@@ -1,15 +1,13 @@
-// React
-import React from 'react'
+// PropTypes
 import PropTypes from "prop-types";
 
 // Material IU
-import {Grid2, Box, Button, TextField, Typography} from '@mui/material'
+import {Box,TextField, Typography} from '@mui/material'
 
 /**
  * 
  */
 export default function SearchFieldDoc({ slotProps }) {
-    console.log(slotProps,"slotProps")
     const {
         text,
         label
@@ -29,3 +27,12 @@ export default function SearchFieldDoc({ slotProps }) {
         </Box>
     )
 }
+
+SearchFieldDoc.propTypes = {
+    slotProps: PropTypes.shape({
+        field: PropTypes.shape({
+            text: PropTypes.string,
+            label: PropTypes.string,
+        })
+    }),
+};

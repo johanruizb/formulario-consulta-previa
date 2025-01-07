@@ -9,8 +9,8 @@ const getToken = () => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            "username": "admin1", 
-            "password": "Admin001"
+            "username": "cristiank", 
+            "password": "feny8uhjddsj90"
         })
     };
 

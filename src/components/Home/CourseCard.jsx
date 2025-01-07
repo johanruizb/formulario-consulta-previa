@@ -32,6 +32,10 @@ export default function CourseCard({ slotProps, children }) {
 
     const small = useSmall();
 
+    const isDisableButton = (curso) => {
+        return (curso.fetcher.uri !== '/inscripcion/cupos/diplomado')
+    }
+
     return (
         <Card
             elevation={3}
@@ -85,6 +89,7 @@ export default function CourseCard({ slotProps, children }) {
                 ) : data?.curso_disponible ? (
                     <Fragment>
                         <Button
+                            disabled={isDisableButton(slotProps)}
                             aria-label="Inscribirse al curso de 20 horas"
                             startIcon={<BorderColorIcon />}
                             color="primary"

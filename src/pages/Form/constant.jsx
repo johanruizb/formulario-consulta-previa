@@ -1931,7 +1931,7 @@ const Formularios = {
                 defaultValue: "no",
                 rules: {
                     required: {
-                        value: true,
+                        value: false,
                         message:
                             "Es necesario responder la pregunta para continuar",
                     },
