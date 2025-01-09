@@ -16,16 +16,11 @@ import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 
-import { useLocalStorage, useRenderCount } from "@uidotdev/usehooks";
+import { useRenderCount } from "@uidotdev/usehooks";
 import dayjs from "dayjs";
 
-import { Fragment, useEffect, useRef, useState } from "react";
-import {
-    FormProvider,
-    useForm,
-    useFormContext,
-    useWatch,
-} from "react-hook-form";
+import { Fragment, useRef, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 
 import useSWR from "swr";
@@ -33,16 +28,22 @@ import useSWR from "swr";
 import { FORM_FIELDS_LABELS, URI } from "../../components/constant";
 import Redirect from "../../components/Form/Redirect";
 import Loging from "../../components/Loging";
+import useAlert from "../../hooks/alert/useAlert";
 import useSmall from "../../hooks/breakpoint/useSmall";
 import fetcher from "../../hooks/request/config";
 import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
+import Validator from "../Validator";
 import Formularios from "./constant";
-import { getBanner, getButtonsFooter, getFooter } from "./functions";
-import DialogMessage from "./Success";
-import ValidateInfoData from "../Validated/index";
+import {
+    getBanner,
+    getButtonsFooter,
+    getFooter,
+    useLoadForm,
+    useSaveForm,
+} from "./functions";
 
 const sortedFields = [
     "firstName",
@@ -72,39 +73,6 @@ const sortedFields = [
     "processingOfPersonalData",
 ];
 
-function useLoadForm() {
-    const [form, saveForm] = useLocalStorage("form", {});
-
-    const expires = form.expires ? dayjs(form.expires) : null;
-    const isAfter = expires ? dayjs().isAfter(expires) : false;
-
-    // Si expira el form, se limpia
-    if (expires && isAfter) return [{}, saveForm];
-    return [form.values, saveForm];
-}
-
-function useSaveForm() {
-    const { control } = useFormContext();
-    const values = useWatch({ control });
-
-    useEffect(() => {
-        const saveImage = async () => {
-            values.frontDocument = null;
-            values.backDocument = null;
-
-            localStorage.setItem(
-                "form",
-                JSON.stringify({
-                    values,
-                    expires: dayjs().add(1, "hour").format(),
-                }),
-            );
-        };
-
-        saveImage();
-    }, [values]);
-}
-
 function Save() {
     useSaveForm();
     return null;
@@ -125,11 +93,13 @@ function scrollIntoError(keys, formRef) {
 
 export default function FormularioRegistro() {
     const { curso = "20hr" } = useParams();
-    const [disabled] = useState(curso !== "diplomado");
+    const disabled = curso !== "diplomado";
     const { data, isLoading, isValidating, error } = useSWR(
         URI.API + "/inscripcion/cupos/" + curso,
         fetcher,
     );
+
+    const [registered, setRegistered] = useState();
 
     Redirect();
 
@@ -205,12 +175,17 @@ export default function FormularioRegistro() {
                 ¡Lo sentimos!
             </Typography>
             <Typography variant="h6" textAlign="center">
-                Las inscripciones para este curso han finalizado. Gracias por tu
-                interés. ¡Te esperamos en futuras ediciones!
+                Las inscripciones para este curso han finalizado.
+                <br />
+                Gracias por tu interés. ¡Te esperamos en futuras ediciones!
             </Typography>
         </Stack>
     ) : data?.curso_disponible === true ? (
-        <FullScreenDialog />
+        registered == false ? (
+            <FullScreenDialog />
+        ) : (
+            <Validator state={[registered, setRegistered]} />
+        )
     ) : (
         <Stack
             alignItems="center"
@@ -240,7 +215,8 @@ function FullScreenDialog() {
     const [disabled, setDisabled] = useState(isProduction);
     const [sending, setSending] = useState(false);
 
-    const [, setMessage] = useLocalStorage("DialogMessage", null); // {message: "string", error: "boolean"}
+    // const [, setMessage] = useLocalStorage("DialogMessage", null); // {message: "string", error: "boolean"}
+    const { onOpen: setAlert } = useAlert();
 
     const [form, saveForm] = useLoadForm();
 
@@ -258,7 +234,17 @@ function FullScreenDialog() {
     };
 
     const onOpenAlert = (message, error = false, title) => {
-        setMessage({ message, error, title });
+        setAlert({ message, error, title });
+    };
+
+    const onSuccess = (token) => {
+        setDisabled(false);
+        methods.setValue("turnstile_token", token);
+    };
+
+    const onExpire = () => {
+        setDisabled(true);
+        ref.current?.reset();
     };
 
     const onSubmit = (data) => {
@@ -270,17 +256,13 @@ function FullScreenDialog() {
         INSCRIPCION.registrar(formData)
             .then((response) => {
                 setTimeout(async () => {
-                    if (response.ok) {
-                        const res = await response.json();
-                        onOpenAlert(
-                            res.message ??
-                                "Sus datos han sido registrados. El equipo del proyecto se pondrá en contacto con usted en los próximos días para brindarle más información",
-                        );
-                        if (isProduction) onCancel();
-                    } else {
-                        response
-                            ?.json()
-                            .then((data) => {
+                    response
+                        .json()
+                        .then((res) => {
+                            if (response.ok) {
+                                onOpenAlert(res.message);
+                                if (isProduction) onCancel();
+                            } else {
                                 onOpenAlert(
                                     data.message ??
                                         `Algo ha fallado al registrarse (${
@@ -288,18 +270,16 @@ function FullScreenDialog() {
                                         }_${response.statusText.toUpperCase()})`,
                                     true,
                                 );
-                            })
-                            .catch(() => {
-                                onOpenAlert(
-                                    "No se ha obtenido respuesta del servidor",
-                                    true,
-                                );
-                            })
-                            .finally(() => {
-                                onExpire();
-                            });
-                        setSending(false);
-                    }
+                            }
+                        })
+                        .catch(() => {
+                            onOpenAlert(
+                                "No se ha obtenido respuesta del servidor",
+                                true,
+                            );
+                            onExpire();
+                        });
+                    setSending(false);
                 }, getTimeout(start));
             })
             .catch(() => {
@@ -327,24 +307,8 @@ function FullScreenDialog() {
         scrollIntoError(keys, formRef);
     };
 
-    const onSuccess = (token) => {
-        setDisabled(false);
-        methods.setValue("turnstile_token", token);
-    };
-
-    const onExpire = () => {
-        setDisabled(true);
-        ref.current?.reset();
-    };
-
     const Banner = getBanner(curso, small);
     const Footer = getFooter(curso, small);
-
-    const paramsValidate = {
-        curso: curso,
-        Banner: Banner,
-        onOpenAlert: onOpenAlert,
-    };
 
     return (
         <Fragment>
@@ -429,7 +393,8 @@ function FullScreenDialog() {
                                             siteKey={
                                                 isProduction
                                                     ? "0x4AAAAAAAiIftnN7i8Mr-yd"
-                                                    : "0x4AAAAAAAiIgbhjquURIMbK"
+                                                    : // : "0x4AAAAAAAiIgbhjquURIMbK"
+                                                      "1x00000000000000000000AA"
                                             }
                                             sx={{
                                                 mb: 2,
@@ -448,7 +413,6 @@ function FullScreenDialog() {
                                 Imagen de freepik
                             </Link>
                         </Stack>
-                        <ValidateInfoData {...paramsValidate} />
                     </Box>
                     <Box
                         component="img"
@@ -519,7 +483,6 @@ function FullScreenDialog() {
                     )}
                 </DialogActions>
             </Dialog>
-            <DialogMessage />
         </Fragment>
     );
 }
