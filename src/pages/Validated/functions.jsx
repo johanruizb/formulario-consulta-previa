@@ -1,44 +1,10 @@
-import SEARCH_DOC from "../../hooks/request/search";
+import dayjs from "dayjs";
 import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import getTimeout from "../../utils/timeout";
-import dayjs from "dayjs";
 
 // CONST
 const COURSE_AVALAIBLES = ["diplomado"];
-
-export async function onSubmit(e, options) {
-    let text = "No se encontro el usuario";
-    let success = false;
-    try {
-        e.preventDefault();
-        const value = e.target.elements[0].value;
-
-        if (value?.length <= 9) return;
-        const user = await foundUser(value);
-        const userJson = await user.json();
-
-        if (userJson?.id) {
-            options.setUserFound(userJson);
-            text = "Usted esta registrado en la base de datos";
-            success = true;
-        }
-
-        options.setText(text);
-        options.setOpen(true);
-        options.setIsSucess(success);
-        options.setOpenDialog(success);
-        setTimeout(() => {
-            options.setShowPreview(success);
-        }, 3000);
-    } catch (e) {
-        console.log(e);
-    }
-}
-
-export function handlerDialog(action, set) {
-    set(action);
-}
 
 export function validateFormData(form) {
     if (form === undefined) return false;
@@ -136,11 +102,6 @@ export function convertObjetToFormatterCorrect(obj) {
 export function initShow(curso, form) {
     return COURSE_AVALAIBLES.includes(curso) && !validateFormData(form);
 }
-
-/*  Private Func */
-const foundUser = async (user) => {
-    return await SEARCH_DOC.existUser(user);
-};
 
 const transformObjt = {
     entidad: "entityName",
