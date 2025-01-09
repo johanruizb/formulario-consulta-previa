@@ -17,14 +17,18 @@ import CursoBotones from "../../assets/curso/sm_botones.jpg";
 import DiplomadoBotones from "../../assets/diplomado/sm_botones.jpg";
 
 // Diplomado - Grupos etnicos
-import DiplomadoGE from "../../assets/diplomado-etnicos/banner.png";
-import DiplomadoGESmall from "../../assets/diplomado-etnicos/sm_banner.png";
+import DiplomadoGE from "../../assets/diplomado-etnicos/banner.jpg";
+import DiplomadoGESmall from "../../assets/diplomado-etnicos/sm_banner.jpg";
 
 import DiplomadoGEFooter from "../../assets/diplomado-etnicos/footer.jpg";
 import DiplomadoGESmallFooter from "../../assets/diplomado-etnicos/sm_footer.jpg";
 
 // Diplomado - botones
-import DiplomadoGEBotones from "../../assets/diplomado-etnicos/sm_footer.jpg";
+import { useLocalStorage } from "@uidotdev/usehooks";
+import dayjs from "dayjs";
+import DiplomadoGEBotones from "../../assets/diplomado-etnicos/sm_botones.jpg";
+import { useFormContext, useWatch } from "react-hook-form";
+import { useEffect } from "react";
 
 function getBanner(curso, small) {
     switch (curso) {
@@ -59,7 +63,40 @@ function getButtonsFooter(curso, small) {
     }
 }
 
-export { getBanner, getFooter, getButtonsFooter };
+export function useLoadForm() {
+    const [form, saveForm] = useLocalStorage("form", {});
+
+    const expires = form.expires ? dayjs(form.expires) : null;
+    const isAfter = expires ? dayjs().isAfter(expires) : false;
+
+    // Si expira el form, se limpia
+    if (expires && isAfter) return [{}, saveForm];
+    return [form.values, saveForm];
+}
+
+export function useSaveForm() {
+    const { control } = useFormContext();
+    const values = useWatch({ control });
+
+    useEffect(() => {
+        const saveImage = async () => {
+            values.frontDocument = null;
+            values.backDocument = null;
+
+            localStorage.setItem(
+                "form",
+                JSON.stringify({
+                    values,
+                    expires: dayjs().add(1, "hour").format(),
+                }),
+            );
+        };
+
+        saveImage();
+    }, [values]);
+}
+
+export { getBanner, getButtonsFooter, getFooter };
 
 const replaceAllSpaces = (e, { onBlur, onChange }) => {
     e.target.value = e.target.value?.replaceAll(" ", "") ?? "";
@@ -79,4 +116,4 @@ const toUpperCase = (e, { onBlur, onChange }) => {
     onChange?.(e);
 };
 
-export { replaceAllSpaces, trimSpaces, toUpperCase };
+export { replaceAllSpaces, toUpperCase, trimSpaces };
