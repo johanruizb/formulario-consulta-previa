@@ -7,7 +7,7 @@
         "upgrade": "ncu -u --reject eslint --reject eslint-plugin-react --reject eslint-plugin-react-hooks --reject eslint-plugin-react-refresh && npm i",
         "format": "npx prettier --write . --tab-width 4 && python .\\src\\utils\\format.py",
         "dev": "vite --port 7153 --host",
-        "build": "vite build",
+        "build": "vite build --outDir ../consulta-previa-proxy --emptyOutDir",
         "lint": "eslint .",
         "preview": "vite preview"
     },

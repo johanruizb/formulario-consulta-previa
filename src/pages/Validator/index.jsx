@@ -14,6 +14,7 @@ import {
     getBanner,
     getButtonsFooter,
     getFooter,
+    scrollIntoError,
     useLoadForm,
     useSaveForm,
 } from "../Form/functions";
@@ -33,6 +34,7 @@ import SEARCH from "../../hooks/request/search";
 import { formDataFromObject } from "../../utils/form";
 import isProduction from "../../utils/isProduction";
 import ValidatorFields, { AlredyRegisteredFields } from "./constants";
+import { FORM_FIELDS_LABELS } from "../../components/constant";
 
 const DEFAULT_MESSAGE = "Por favor, ingresa el número de tu cédula";
 
@@ -161,6 +163,25 @@ function Validator({ state }) {
     const onExpire = () => {
         setDisabled(true);
         ref.current?.reset();
+    };
+
+    const onError = (error) => {
+        const keys = Object.keys(error);
+        let fields = keys
+            // .slice(0, 2)
+            .map((key) => FORM_FIELDS_LABELS[key])
+            .join(", ");
+
+        if (keys.length >= 3) {
+            // fields = `${fields}... y ${keys.length - 2} más`;
+            fields = `${fields}`;
+        }
+        setAlert({
+            message: "Por favor verifica los campos: \n" + fields,
+            error: true,
+            title: "El formulario contiene errores",
+        });
+        scrollIntoError(keys, formRef);
     };
 
     return (
@@ -399,7 +420,10 @@ function Validator({ state }) {
                                 Limpiar formulario
                             </Button>
                             <Button
-                                onClick={methods.handleSubmit(onSubmit)}
+                                onClick={methods.handleSubmit(
+                                    onSubmit,
+                                    onError,
+                                )}
                                 endIcon={<SaveIcon />}
                                 disabled={disabled}
                                 sx={{

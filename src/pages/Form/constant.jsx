@@ -1720,7 +1720,7 @@ const Formularios = {
             },
             field: {
                 label: "Nombre de la entidad u organización que representa",
-                required: true,
+                // required: true,
                 onChange: toUpperCase,
             },
         },

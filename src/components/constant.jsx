@@ -49,7 +49,9 @@ const COLOMBIA = {
 };
 
 const URI = {
-    FORM: isProduction ? "" : `http://${window.location.hostname}:3000`,
+    FORM: isProduction
+        ? "https://panel.consultaprevia.co/api/ubicacion"
+        : `http://${window.location.hostname}:8080/api/ubicacion`,
     API: isProduction
         ? "https://panel.consultaprevia.co/api/v1"
         : `http://${window.location.hostname}:8080/api/v1`,

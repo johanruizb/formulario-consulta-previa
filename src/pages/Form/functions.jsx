@@ -96,6 +96,45 @@ export function useSaveForm() {
     }, [values]);
 }
 
+const sortedFields = [
+    "firstName",
+    "lastName",
+    "identityDocument",
+    "documentNumber",
+    "countryExpedition",
+    "frontDocument",
+    "backDocument",
+    "birthdate",
+    "countryBirth",
+    "stateBirth",
+    "cityBirth",
+    "gender",
+    "ethnicity",
+    "entityName",
+    "typeEntity",
+    "phoneNumber",
+    "whatsappNumber",
+    "email",
+    "stateLocation",
+    "address",
+    "neighborhood",
+    "zona",
+    "connectivity",
+    "continuar_curso_120",
+    "processingOfPersonalData",
+];
+
+export function scrollIntoError(keys, formRef) {
+    for (const field of sortedFields)
+        if (keys.includes(field)) {
+            formRef.current[field]?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+            break;
+        }
+}
+
 export { getBanner, getButtonsFooter, getFooter };
 
 const replaceAllSpaces = (e, { onBlur, onChange }) => {

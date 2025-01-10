@@ -41,52 +41,14 @@ import {
     getBanner,
     getButtonsFooter,
     getFooter,
+    scrollIntoError,
     useLoadForm,
     useSaveForm,
 } from "./functions";
 
-const sortedFields = [
-    "firstName",
-    "lastName",
-    "identityDocument",
-    "documentNumber",
-    "countryExpedition",
-    "frontDocument",
-    "backDocument",
-    "birthdate",
-    "countryBirth",
-    "stateBirth",
-    "cityBirth",
-    "gender",
-    "ethnicity",
-    "entityName",
-    "typeEntity",
-    "phoneNumber",
-    "whatsappNumber",
-    "email",
-    "stateLocation",
-    "address",
-    "neighborhood",
-    "zona",
-    "connectivity",
-    "continuar_curso_120",
-    "processingOfPersonalData",
-];
-
 function Save() {
     useSaveForm();
     return null;
-}
-
-function scrollIntoError(keys, formRef) {
-    for (const field of sortedFields)
-        if (keys.includes(field)) {
-            formRef.current[field]?.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            });
-            break;
-        }
 }
 
 //
