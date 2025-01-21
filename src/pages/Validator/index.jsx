@@ -125,7 +125,9 @@ function Validator({ state }) {
                                     message: res.message,
                                 });
                                 if (isProduction) onCancel();
-                            } else
+                            } else {
+                                console.log(res.message);
+
                                 setAlert({
                                     message:
                                         res.message ??
@@ -134,6 +136,7 @@ function Validator({ state }) {
                                         }_${response.statusText.toUpperCase()})`,
                                     error: true,
                                 });
+                            }
                         })
                         .catch(() => {
                             setAlert({
