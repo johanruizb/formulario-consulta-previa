@@ -27,7 +27,6 @@ import useSWR from "swr";
 
 import { FORM_FIELDS_LABELS, URI } from "../../components/constant";
 import Redirect from "../../components/Form/Redirect";
-import Loging from "../../components/Loging";
 import useAlert from "../../hooks/alert/useAlert";
 import useSmall from "../../hooks/breakpoint/useSmall";
 import fetcher from "../../hooks/request/config";
@@ -45,6 +44,7 @@ import {
     useLoadForm,
     useSaveForm,
 } from "./functions";
+// import Loging from "../../components/Loging";
 
 function Save() {
     useSaveForm();
@@ -107,7 +107,7 @@ export default function FormularioRegistro() {
                     Lo sentimos, ha ocurrido un error inesperado en el servidor.
                     Por favor, inténtalo de nuevo más tarde.
                 </Typography>
-                <Loging error={error} visible />
+                {/* <Loging error={error} visible /> */}
             </Stack>
         );
 
@@ -210,7 +210,8 @@ function FullScreenDialog() {
     };
 
     const onSubmit = (data) => {
-        if (isProduction) setSending(true);
+        // if (isProduction)
+        setSending(true);
         const start = dayjs();
 
         const formData = formDataFromObject({ ...data, curso });
@@ -226,7 +227,7 @@ function FullScreenDialog() {
                                 if (isProduction) onCancel();
                             } else {
                                 onOpenAlert(
-                                    data.message ??
+                                    res.message ??
                                         `Algo ha fallado al registrarse (${
                                             response.status
                                         }_${response.statusText.toUpperCase()})`,
