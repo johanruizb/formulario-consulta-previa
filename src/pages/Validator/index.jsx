@@ -185,6 +185,7 @@ function Validator({ state }) {
             title: "El formulario contiene errores",
         });
         scrollIntoError(keys, formRef);
+        onExpire();
     };
 
     return (
