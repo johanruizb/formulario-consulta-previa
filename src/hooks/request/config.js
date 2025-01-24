@@ -31,7 +31,8 @@ const fetcher = (...args) =>
         })
         .catch((error) => {
             console.error(error);
-            USUARIO.registrarLog(error, "error");
+            const err = JSON.stringify(error);
+            USUARIO.registrarLog(err, "error");
             return Promise.reject(error);
         });
 
