@@ -268,6 +268,7 @@ function FullScreenDialog() {
             "El formulario contiene errores",
         );
         scrollIntoError(keys, formRef);
+        onExpire();
     };
 
     const Banner = getBanner(curso, small);
