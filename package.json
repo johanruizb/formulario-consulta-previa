@@ -8,6 +8,7 @@
         "format": "npx prettier --write . --tab-width 4 && python .\\src\\utils\\format.py",
         "dev": "vite --port 7153 --host",
         "build": "vite build --outDir ../consulta-previa-proxy --emptyOutDir",
+        "start": "npx serve ../consulta-previa-proxy",
         "lint": "eslint .",
         "preview": "vite preview"
     },
