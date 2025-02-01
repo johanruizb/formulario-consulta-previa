@@ -17,5 +17,13 @@ const INSCRIPCION = {
             method: "POST",
             body: data,
         }),
+    espera: (data) =>
+        fetch(url + "/espera", {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }),
 };
 export default INSCRIPCION;
