@@ -1,3 +1,8 @@
+import { useLocalStorage } from "@uidotdev/usehooks";
+import dayjs from "dayjs";
+import { useEffect } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+
 // Curso - Grupos etnicos
 import CursoBanner from "../../assets/curso/banner.jpg";
 import CursoSmallBanner from "../../assets/curso/sm_banner.jpg";
@@ -24,11 +29,7 @@ import DiplomadoGEFooter from "../../assets/diplomado-etnicos/footer.jpg";
 import DiplomadoGESmallFooter from "../../assets/diplomado-etnicos/sm_footer.jpg";
 
 // Diplomado - botones
-import { useLocalStorage } from "@uidotdev/usehooks";
-import dayjs from "dayjs";
 import DiplomadoGEBotones from "../../assets/diplomado-etnicos/sm_botones.jpg";
-import { useFormContext, useWatch } from "react-hook-form";
-import { useEffect } from "react";
 
 function getBanner(curso, small) {
     switch (curso) {

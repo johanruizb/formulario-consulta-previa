@@ -19,7 +19,7 @@ import Typography from "@mui/material/Typography";
 import { useRenderCount } from "@uidotdev/usehooks";
 import dayjs from "dayjs";
 
-import { Fragment, useRef, useState } from "react";
+import { Fragment, lazy, Suspense, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 
@@ -34,7 +34,8 @@ import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
-import Validator from "../Validator";
+// import Validator from "../Validator";
+const Validator = lazy(() => import("../Validator"));
 import Formularios from "./constant";
 import {
     getBanner,
@@ -44,6 +45,7 @@ import {
     useLoadForm,
     useSaveForm,
 } from "./functions";
+import Backdrop from "@mui/material/Backdrop";
 // import Loging from "../../components/Loging";
 
 function Save() {
@@ -146,7 +148,20 @@ export default function FormularioRegistro() {
         registered == false ? (
             <FullScreenDialog />
         ) : (
-            <Validator state={[registered, setRegistered]} />
+            <Suspense
+                fallback={
+                    <Backdrop
+                        open={true}
+                        sx={{
+                            bgcolor: "transparent",
+                        }}
+                    >
+                        <CircularProgress />
+                    </Backdrop>
+                }
+            >
+                <Validator state={[registered, setRegistered]} />
+            </Suspense>
         )
     ) : (
         <Stack
