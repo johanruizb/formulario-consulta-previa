@@ -1,7 +1,7 @@
 import { useLocalStorage } from "@uidotdev/usehooks";
 
 function useAlert() {
-    const [message, setMessage] = useLocalStorage("DialogMessage", null); // {message: "string", error: "boolean"}
+    const [message, setMessage] = useLocalStorage("DialogMessage", null);
 
     const onClose = () => setMessage(null);
     const onOpen = ({ title, message, error = false }) =>
@@ -10,8 +10,6 @@ function useAlert() {
             message,
             error,
         });
-
-    console.log(message);
 
     return {
         message,
