@@ -27,6 +27,7 @@ import dayjs from "dayjs";
 import PropTypes from "prop-types";
 import { Fragment, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { FORM_FIELDS_LABELS } from "../../components/constant";
 import useAlert from "../../hooks/alert/useAlert";
 import useLoading from "../../hooks/loading/useLoading";
 import INSCRIPCION from "../../hooks/request/inscripcion";
@@ -34,7 +35,6 @@ import SEARCH from "../../hooks/request/search";
 import { formDataFromObject } from "../../utils/form";
 import isProduction from "../../utils/isProduction";
 import ValidatorFields, { AlredyRegisteredFields } from "./constants";
-import { FORM_FIELDS_LABELS } from "../../components/constant";
 
 const DEFAULT_MESSAGE = "Por favor, ingresa el número de tu cédula";
 
@@ -71,35 +71,35 @@ function Validator({ state }) {
     const onSearch = (data) => {
         start(dayjs());
         SEARCH.verify(data).then((response) => {
-            response.json().then((data) => {
-                if (response.ok)
-                    finish(() => {
-                        if (response.status === 200) {
-                            // setAlert({
-                            //     title: "Inscripción encontrada",
-                            //     message: data.message,
-                            // });
-                            setMessage(null);
-                            setRegistered(response.ok);
-                            methods.reset(data.persona);
-                            ref.current?.reset();
-                        } else
-                            setAlert({
-                                title: "Ya te has inscrito!",
-                                message: data.message,
-                                error: true,
-                            });
-                    });
-                else {
-                    // setAlert({
-                    //     title: "Inscripción no encontrada",
-                    //     message:
-                    //         "No te has inscrito previamente. Por favor, completa el formulario",
-                    //     error: true,
-                    // });
-                    setRegistered(response.ok);
-                }
-            });
+            response
+                .json()
+                .then((data) => {
+                    if (response.ok)
+                        finish(() => {
+                            if (response.status === 200) {
+                                // setAlert({
+                                //     title: "Inscripción encontrada",
+                                //     message: data.message,
+                                // });
+                                setMessage(null);
+                                setRegistered(response.ok);
+                                methods.reset(data.persona);
+                                // ref.current?.reset();
+                            } else
+                                setAlert({
+                                    title: "Ya te has inscrito!",
+                                    message: data.message,
+                                    error: true,
+                                });
+                        });
+                    else {
+                        if (response.status === 404) setRegistered(response.ok);
+                    }
+                })
+                .finally(() => {
+                    setDisabled(true);
+                    ref.current?.reset();
+                });
         });
     };
 
