@@ -1,5 +1,5 @@
 import Typography from "@mui/material/Typography";
-import { DatePicker } from "@mui/x-date-pickers";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useRenderCount } from "@uidotdev/usehooks";
 
 import PropTypes from "prop-types";
