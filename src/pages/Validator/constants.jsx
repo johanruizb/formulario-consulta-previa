@@ -403,22 +403,22 @@ const AlredyRegisteredFields = [
         },
         field: {
             options: [
-                {
-                    value: 12,
-                    label: "Educadores o profesores",
-                },
-                {
-                    value: 13,
-                    label: "Estudiantes universitarios",
-                },
-                {
-                    value: 14,
-                    label: "Líder/lideresa comunitaria",
-                },
-                {
-                    value: 8,
-                    label: "Empresario",
-                },
+                // {
+                //     value: 12,
+                //     label: "Educadores o profesores",
+                // },
+                // {
+                //     value: 13,
+                //     label: "Estudiantes universitarios",
+                // },
+                // {
+                //     value: 14,
+                //     label: "Líder/lideresa comunitaria",
+                // },
+                // {
+                //     value: 8,
+                //     label: "Empresario",
+                // },
                 {
                     value: 15,
                     label: "Funcionarios/contratistas del Ministerio del Interior",
@@ -427,10 +427,10 @@ const AlredyRegisteredFields = [
                     value: 16,
                     label: "Funcionarios/contratistas de otra entidad pública ",
                 },
-                {
-                    value: 7,
-                    label: "Población civil",
-                },
+                // {
+                //     value: 7,
+                //     label: "Población civil",
+                // },
             ],
             label: "De los siguientes roles en cuál se reconoce?",
             required: true,
