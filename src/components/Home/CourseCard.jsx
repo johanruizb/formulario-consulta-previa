@@ -32,10 +32,6 @@ export default function CourseCard({ slotProps, children }) {
 
     const small = useSmall();
 
-    const isDisableButton = (curso) => {
-        return curso.fetcher.uri !== "/inscripcion/cupos/diplomado";
-    };
-
     return (
         <Card
             elevation={3}
@@ -87,47 +83,59 @@ export default function CourseCard({ slotProps, children }) {
                         Error al cargar los cupos
                     </Typography>
                 ) : data?.curso_disponible ? (
-                    <Fragment>
-                        <Button
-                            disabled={isDisableButton(slotProps)}
-                            aria-label="Inscribirse al curso de 20 horas"
-                            startIcon={<BorderColorIcon />}
-                            color="primary"
-                            LinkComponent={Link}
-                            to="20hr"
-                            {...slotProps.button}
-                        >
-                            Inscribirse
-                        </Button>
-                        <IconButton
-                            aria-label="Compartir"
-                            {...slotProps.shareButton}
-                        >
-                            <ShareIcon />
-                        </IconButton>
-                        <Stack
-                            direction="row"
-                            justifyContent="flex-end"
-                            alignItems="center"
-                            spacing={1.25}
-                            sx={{
-                                flex: 1,
-                            }}
-                        >
-                            {isValidating && <CircularProgress size={18} />}
-                            <Typography
-                                color={
-                                    data?.curso_disponible ? "success" : "error"
-                                }
+                    data?.cupos > 0 ? (
+                        <Fragment>
+                            <Button
+                                aria-label="Inscribirse al curso de 20 horas"
+                                startIcon={<BorderColorIcon />}
+                                color="primary"
+                                LinkComponent={Link}
+                                to="20hr"
+                                {...slotProps.button}
+                            >
+                                Inscribirse
+                            </Button>
+                            <IconButton
+                                aria-label="Compartir"
+                                {...slotProps.shareButton}
+                            >
+                                <ShareIcon />
+                            </IconButton>
+                            <Stack
+                                direction="row"
+                                justifyContent="flex-end"
+                                alignItems="center"
+                                spacing={1.25}
                                 sx={{
-                                    textAlign: "right",
+                                    flex: 1,
                                 }}
                             >
-                                {formatNumber(data?.cupos ?? 0)} cupos
-                                disponibles
-                            </Typography>
-                        </Stack>
-                    </Fragment>
+                                {isValidating && <CircularProgress size={18} />}
+                                <Typography
+                                    color={
+                                        data?.curso_disponible
+                                            ? "success"
+                                            : "error"
+                                    }
+                                    sx={{
+                                        textAlign: "right",
+                                    }}
+                                >
+                                    {formatNumber(data?.cupos ?? 0)} cupos
+                                    disponibles
+                                </Typography>
+                            </Stack>
+                        </Fragment>
+                    ) : (
+                        <Typography
+                            color="error"
+                            sx={{
+                                textAlign: "center",
+                            }}
+                        >
+                            No hay cupos disponibles
+                        </Typography>
+                    )
                 ) : (
                     <Typography
                         color="error"
@@ -135,7 +143,7 @@ export default function CourseCard({ slotProps, children }) {
                             textAlign: "center",
                         }}
                     >
-                        No hay cupos disponibles
+                        El curso no está disponible en este momento
                     </Typography>
                 )}
             </CardActions>
