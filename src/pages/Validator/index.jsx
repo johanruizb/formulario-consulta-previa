@@ -70,7 +70,10 @@ function Validator({ state }) {
 
     const onSearch = (data) => {
         start(dayjs());
-        SEARCH.verify(data).then((response) => {
+        SEARCH.verify({
+            ...data,
+            curso,
+        }).then((response) => {
             response
                 .json()
                 .then((data) => {
@@ -112,6 +115,8 @@ function Validator({ state }) {
         start(dayjs());
         const formData = formDataFromObject({
             ...data,
+            processingOfPersonalData: true,
+            curso,
             alreadyRegistered: true,
         });
         INSCRIPCION.registrar(formData)
