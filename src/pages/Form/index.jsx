@@ -1,8 +1,8 @@
 import { Turnstile } from "@marsidev/react-turnstile";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import WarningIcon from "@mui/icons-material/Warning";
-
 import SaveIcon from "@mui/icons-material/Save";
+import WarningIcon from "@mui/icons-material/Warning";
+import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -15,16 +15,12 @@ import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-
 import { useRenderCount } from "@uidotdev/usehooks";
 import dayjs from "dayjs";
-
 import { Fragment, lazy, Suspense, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
-
 import useSWR from "swr";
-
 import { FORM_FIELDS_LABELS, URI } from "../../components/constant";
 import Redirect from "../../components/Form/Redirect";
 import useAlert from "../../hooks/alert/useAlert";
@@ -34,8 +30,6 @@ import INSCRIPCION from "../../hooks/request/inscripcion";
 import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
-// import Validator from "../Validator";
-const Validator = lazy(() => import("../Validator"));
 import Formularios from "./constant";
 import {
     getBanner,
@@ -45,8 +39,7 @@ import {
     useLoadForm,
     useSaveForm,
 } from "./functions";
-import Backdrop from "@mui/material/Backdrop";
-// import Loging from "../../components/Loging";
+const Validator = lazy(() => import("../Validator/index"));
 
 function Save() {
     useSaveForm();
@@ -57,7 +50,6 @@ function Save() {
 
 export default function FormularioRegistro() {
     const { curso = "20hr" } = useParams();
-    const disabled = curso !== "diplomado";
     const { data, isLoading, isValidating, error } = useSWR(
         URI.API + "/inscripcion/cupos/" + curso,
         fetcher,
@@ -109,7 +101,6 @@ export default function FormularioRegistro() {
                     Lo sentimos, ha ocurrido un error inesperado en el servidor.
                     Por favor, inténtalo de nuevo más tarde.
                 </Typography>
-                {/* <Loging error={error} visible /> */}
             </Stack>
         );
 
@@ -125,7 +116,45 @@ export default function FormularioRegistro() {
         >
             <CircularProgress />
         </Stack>
-    ) : disabled ? (
+    ) : data?.curso_disponible ? (
+        data?.cupos > 0 ? (
+            registered == false ? (
+                <FullScreenDialog />
+            ) : (
+                <Suspense
+                    fallback={
+                        <Backdrop
+                            open={true}
+                            sx={{
+                                bgcolor: "transparent",
+                            }}
+                        >
+                            <CircularProgress />
+                        </Backdrop>
+                    }
+                >
+                    <Validator state={[registered, setRegistered]} />
+                </Suspense>
+            )
+        ) : (
+            <Stack
+                alignItems="center"
+                justifyContent="center"
+                sx={{
+                    position: "fixed",
+                    width: "100%",
+                    height: "100%",
+                }}
+            >
+                <Typography variant="h4" textAlign="center">
+                    ¡Lo sentimos!
+                </Typography>
+                <Typography variant="h6" textAlign="center">
+                    No hay cupos disponibles para este curso
+                </Typography>
+            </Stack>
+        )
+    ) : (
         <Stack
             alignItems="center"
             justifyContent="center"
@@ -142,42 +171,6 @@ export default function FormularioRegistro() {
                 Las inscripciones para este curso han finalizado.
                 <br />
                 Gracias por tu interés. ¡Te esperamos en futuras ediciones!
-            </Typography>
-        </Stack>
-    ) : data?.curso_disponible === true ? (
-        registered == false ? (
-            <FullScreenDialog />
-        ) : (
-            <Suspense
-                fallback={
-                    <Backdrop
-                        open={true}
-                        sx={{
-                            bgcolor: "transparent",
-                        }}
-                    >
-                        <CircularProgress />
-                    </Backdrop>
-                }
-            >
-                <Validator state={[registered, setRegistered]} />
-            </Suspense>
-        )
-    ) : (
-        <Stack
-            alignItems="center"
-            justifyContent="center"
-            sx={{
-                position: "fixed",
-                width: "100%",
-                height: "100%",
-            }}
-        >
-            <Typography variant="h4" textAlign="center">
-                ¡Lo sentimos!
-            </Typography>
-            <Typography variant="h6" textAlign="center">
-                No hay cupos disponibles para este curso
             </Typography>
         </Stack>
     );
