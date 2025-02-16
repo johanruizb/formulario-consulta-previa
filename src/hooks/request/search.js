@@ -3,13 +3,13 @@ import { URI } from "../../components/constant";
 const url = URI.API.replace("/v1", "");
 
 const SEARCH = {
-    verify: ({ documentNumber, turnstile_token }) =>
+    verify: ({ documentNumber, turnstile_token, curso }) =>
         fetch(url + "/usuarios/search/inscritos", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ documentNumber, turnstile_token }),
+            body: JSON.stringify({ documentNumber, turnstile_token, curso }),
         }),
 };
 export default SEARCH;
