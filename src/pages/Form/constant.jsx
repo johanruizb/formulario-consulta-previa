@@ -387,14 +387,6 @@ const Formularios = {
                         value: 4,
                         label: "Institucionalidad interviniente en Consulta Previa",
                     },
-                    // {
-                    //     value: 5,
-                    //     label: "Contratista del Ministerio del Interior",
-                    // },
-                    // {
-                    //     value: 6,
-                    //     label: "Funcionarios Ministerio del Interior",
-                    // },
                     {
                         value: 7,
                         label: "Población civil",
