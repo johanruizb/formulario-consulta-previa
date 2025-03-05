@@ -52,7 +52,8 @@ export default function Home() {
                                 },
                                 cardHeader: {
                                     title: "Curso virtual de autoformación en Consulta Previa",
-                                    subheader: "Septiembre 31, 2024",
+                                    // subheader: "Septiembre 31, 2024",
+                                    subheader: "Febrero 28, 2025",
                                 },
                                 cardMedia: {
                                     image: getBanner("20hr", small),
@@ -120,7 +121,8 @@ export default function Home() {
                                 },
                                 cardHeader: {
                                     title: "Curso virtual de autoformación en consulta previa para fortalecimiento de capacidades institucionales",
-                                    subheader: "Septiembre 31, 2024",
+                                    // subheader: "Septiembre 31, 2024",
+                                    subheader: "Febrero 17, 2025",
                                     avatar: (
                                         <Avatar sx={{ bgcolor: "#FF9F00" }}>
                                             2
