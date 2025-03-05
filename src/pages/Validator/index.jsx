@@ -215,17 +215,6 @@ function Validator({ state }) {
                     }}
                 >
                     <Stack flexDirection="column" alignItems="center">
-                        {/* <Typography
-                        variant="h6"
-                        align="center"
-                        sx={{
-                            mb: 1,
-                        }}
-                    >
-                        
-                        Por favor, ingresa el número de tu cédula para validar
-                        si ya te has inscrito previamente
-                    </Typography> */}
                         <Typography
                             variant={registered ? "body1" : "h6"}
                             align="center"
@@ -268,20 +257,8 @@ function Validator({ state }) {
                                 }}
                             >
                                 {registered ? (
-                                    // AlredyRegisteredFields.map((field, index) => {
-                                    //       const { Component } = field;
-                                    //       return (
-                                    //           <Component
-                                    //               key={index}
-                                    //               slotProps={{
-                                    //                   ...field,
-                                    //                   formRef,
-                                    //               }}
-                                    //           />
-                                    //       );
-                                    //   })
                                     <Grid container spacing={1.25}>
-                                        {AlredyRegisteredFields?.map(
+                                        {AlredyRegisteredFields?.[curso]?.map(
                                             (field, index) => {
                                                 const {
                                                     Component,
