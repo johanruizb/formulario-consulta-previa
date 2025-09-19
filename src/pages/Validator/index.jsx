@@ -322,9 +322,8 @@ function Validator({ state }) {
                             label={`form_button_${window.location.hostname}`}
                             siteKey={
                                 isProduction
-                                    ? "0x4AAAAAAAiIftnN7i8Mr-yd"
-                                    : // : "0x4AAAAAAAiIgbhjquURIMbK"
-                                      "1x00000000000000000000AA"
+                                    ? "0x4AAAAAAB2McbF4i64uJyTJ"
+                                    : "1x00000000000000000000AA"
                             }
                             sx={{
                                 mb: "19.91px !important",

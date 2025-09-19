@@ -65,7 +65,7 @@ export default function Home() {
                                 shareButton: {
                                     onClick: () =>
                                         onShare(
-                                            "https://registro.consultaprevia.co/20hr",
+                                            "https://registro.consultaprevia.net/20hr",
                                         ),
                                 },
                             }}
@@ -122,7 +122,8 @@ export default function Home() {
                                 cardHeader: {
                                     title: "Curso virtual de autoformación en consulta previa para fortalecimiento de capacidades institucionales",
                                     // subheader: "Septiembre 31, 2024",
-                                    subheader: "Febrero 17, 2025",
+                                    // subheader: "Febrero 17, 2025",
+                                    subheader: "Marzo 10, 2025",
                                     avatar: (
                                         <Avatar sx={{ bgcolor: "#FF9F00" }}>
                                             2
@@ -142,7 +143,7 @@ export default function Home() {
                                 shareButton: {
                                     onClick: () =>
                                         onShare(
-                                            "https://registro.consultaprevia.co/20hr-institucional",
+                                            "https://registro.consultaprevia.net/20hr-institucional",
                                         ),
                                 },
                             }}
@@ -211,7 +212,7 @@ export default function Home() {
                                 shareButton: {
                                     onClick: () =>
                                         onShare(
-                                            "https://registro.consultaprevia.co/diplomado",
+                                            "https://registro.consultaprevia.net/diplomado",
                                         ),
                                 },
                             }}
