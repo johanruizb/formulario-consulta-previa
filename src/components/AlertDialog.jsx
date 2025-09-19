@@ -14,13 +14,19 @@ import Stack from "@mui/material/Stack";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { Fragment } from "react";
 
-function DialogMessage() {
-    const [message, setMessage] = useLocalStorage("DialogMessage", null); // {message: "string", error: "boolean"}
-    const onClose = () => setMessage(null);
+function AlertDialog() {
+    const [alert, setAlert] = useLocalStorage("DialogMessage", null); // {message: "string", title: "string", error: "boolean"}
+    const onClose = () => setAlert(null);
 
     return (
-        message && (
-            <Dialog open>
+        alert &&
+        alert.message && (
+            <Dialog
+                open
+                sx={{
+                    zIndex: 99999,
+                }}
+            >
                 <DialogTitle
                     sx={{
                         display: "flex",
@@ -34,13 +40,13 @@ function DialogMessage() {
                             flex: 1,
                         }}
                     >
-                        {message.error ? (
+                        {alert?.error ? (
                             <ErrorIcon color="error" sx={{ mr: 1 }} />
                         ) : (
                             <CheckCircleIcon color="success" sx={{ mr: 1 }} />
                         )}
-                        {message.title ??
-                            (message.error
+                        {alert?.title ??
+                            (alert?.error
                                 ? "Algo ha salido mal"
                                 : "El registro ha sido exitoso")}
                     </Stack>
@@ -58,9 +64,29 @@ function DialogMessage() {
                 <DialogContent dividers>
                     <Stack>
                         <Typography align="center">
-                            {message.message.split("\n").map((line, index) => (
+                            {alert?.message?.split("\n").map((line, index) => (
                                 <Fragment key={index}>
-                                    {line}
+                                    {line
+                                        .split(/(<strong>.*?<\/strong>)/g)
+                                        .map((segment, segmentIndex) => {
+                                            // Verificar si el segmento está entre etiquetas <strong>
+                                            if (
+                                                segment.startsWith(
+                                                    "<strong>",
+                                                ) &&
+                                                segment.endsWith("</strong>")
+                                            ) {
+                                                const strongContent =
+                                                    segment.slice(8, -9); // Eliminar <strong> y </strong>
+                                                return (
+                                                    <strong key={segmentIndex}>
+                                                        {strongContent}
+                                                    </strong>
+                                                );
+                                            }
+                                            // Texto normal
+                                            return segment;
+                                        })}
                                     <br />
                                 </Fragment>
                             ))}
@@ -77,4 +103,4 @@ function DialogMessage() {
     );
 }
 
-export default DialogMessage;
+export default AlertDialog;

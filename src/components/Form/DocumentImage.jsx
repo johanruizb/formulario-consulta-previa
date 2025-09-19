@@ -12,6 +12,21 @@ import { useController, useFormContext } from "react-hook-form";
 import Frente from "../../assets/frente.png";
 import Reverso from "../../assets/reverso.png";
 
+function getErrorMessage(errorCode) {
+    switch (errorCode) {
+        case "file-invalid-type":
+            return "El archivo tiene un tipo no permitido.";
+        case "file-too-large":
+            return "El archivo es demasiado grande.";
+        case "file-too-small":
+            return "El archivo es demasiado pequeño.";
+        case "too-many-files":
+            return "Has seleccionado demasiados archivos.";
+        default:
+            return "Ha ocurrido un error desconocido.";
+    }
+}
+
 const DocumentField = forwardRef(function DocumentField(props, ref) {
     const low = false;
     const [url, setUrl] = useState();
@@ -105,7 +120,7 @@ DocumentField.propTypes = {
 };
 
 function FrontDocumentImage({ formRef }) {
-    const { control } = useFormContext();
+    const { control, setError, clearErrors } = useFormContext();
 
     const {
         field,
@@ -129,6 +144,13 @@ function FrontDocumentImage({ formRef }) {
         maxSize: 10 * 1024 * 1024,
         onDropAccepted: (files) => {
             field.onChange(files[0]);
+            clearErrors("frontDocument");
+        },
+        onDropRejected: (files) => {
+            setError("frontDocument", {
+                type: "manual",
+                message: getErrorMessage(files[0].errors[0].code),
+            });
         },
     });
 
@@ -176,7 +198,7 @@ FrontDocumentImage.propTypes = {
 };
 
 function BackDocumentImage({ formRef }) {
-    const { control } = useFormContext();
+    const { control, setError, clearErrors } = useFormContext();
 
     const {
         field,
@@ -201,6 +223,13 @@ function BackDocumentImage({ formRef }) {
         maxSize: 10 * 1024 * 1024,
         onDropAccepted: (files) => {
             field.onChange(files[0]);
+            clearErrors("backDocument");
+        },
+        onDropRejected: (files) => {
+            setError("backDocument", {
+                type: "manual",
+                message: getErrorMessage(files[0].errors[0].code),
+            });
         },
     });
 

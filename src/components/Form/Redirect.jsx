@@ -8,7 +8,7 @@ function Redirect({ to = "/404" } = {}) {
 
     if (
         ![
-            "diplomado-etnicos",
+            "diplomado",
             // "diplomado-funcionarios",
             "20hr",
             "20hr-institucional",

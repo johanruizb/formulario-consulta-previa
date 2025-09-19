@@ -52,7 +52,8 @@ export default function Home() {
                                 },
                                 cardHeader: {
                                     title: "Curso virtual de autoformación en Consulta Previa",
-                                    subheader: "Septiembre 31, 2024",
+                                    // subheader: "Septiembre 31, 2024",
+                                    subheader: "Febrero 28, 2025",
                                 },
                                 cardMedia: {
                                     image: getBanner("20hr", small),
@@ -64,7 +65,7 @@ export default function Home() {
                                 shareButton: {
                                     onClick: () =>
                                         onShare(
-                                            "https://registro.consultaprevia.co/20hr",
+                                            "https://registro.consultaprevia.net/20hr",
                                         ),
                                 },
                             }}
@@ -120,7 +121,9 @@ export default function Home() {
                                 },
                                 cardHeader: {
                                     title: "Curso virtual de autoformación en consulta previa para fortalecimiento de capacidades institucionales",
-                                    subheader: "Septiembre 31, 2024",
+                                    // subheader: "Septiembre 31, 2024",
+                                    // subheader: "Febrero 17, 2025",
+                                    subheader: "Marzo 10, 2025",
                                     avatar: (
                                         <Avatar sx={{ bgcolor: "#FF9F00" }}>
                                             2
@@ -140,7 +143,7 @@ export default function Home() {
                                 shareButton: {
                                     onClick: () =>
                                         onShare(
-                                            "https://registro.consultaprevia.co/20hr-institucional",
+                                            "https://registro.consultaprevia.net/20hr-institucional",
                                         ),
                                 },
                             }}
@@ -188,7 +191,7 @@ export default function Home() {
                         <CourseCard
                             slotProps={{
                                 fetcher: {
-                                    uri: "/inscripcion/cupos/diplomado-etnicos",
+                                    uri: "/inscripcion/cupos/diplomado",
                                 },
                                 cardHeader: {
                                     title: "Diplomado de autoformación en Consulta Previa",
@@ -200,19 +203,16 @@ export default function Home() {
                                     ),
                                 },
                                 cardMedia: {
-                                    image: getBanner(
-                                        "diplomado-etnicos",
-                                        small,
-                                    ),
+                                    image: getBanner("diplomado", small),
                                     alt: "Banner de consulta previa del diplomado de 120 horas, dirigido a ciudadanos en general.",
                                 },
                                 button: {
-                                    to: "diplomado-etnicos",
+                                    to: "diplomado",
                                 },
                                 shareButton: {
                                     onClick: () =>
                                         onShare(
-                                            "https://registro.consultaprevia.co/diplomado-etnicos",
+                                            "https://registro.consultaprevia.net/diplomado",
                                         ),
                                 },
                             }}
@@ -249,84 +249,6 @@ export default function Home() {
                             </Typography>
                         </CourseCard>
                     </Grid>
-                    {/* <Grid
-                        size={{
-                            xs: 12,
-                            md: 6,
-                        }}
-                    >
-                        <CourseCard
-                            slotProps={{
-                                fetcher: {
-                                    uri: "/inscripcion/cupos/diplomado-funcionarios",
-                                },
-                                card: {
-                                    elevation: 3,
-                                    sx: {
-                                        borderColor: "#FF9F00",
-                                    },
-                                },
-                                cardHeader: {
-                                    title: "Diplomado de autoformación en consulta previa para fortalecimiento de capacidades institucionales",
-                                    subheader: "Diciembre 16, 2024",
-                                    avatar: (
-                                        <Avatar sx={{ bgcolor: "#FF9F00" }}>
-                                            4
-                                        </Avatar>
-                                    ),
-                                },
-                                cardMedia: {
-                                    image: getBanner(
-                                        "diplomado-funcionarios",
-                                        small
-                                    ),
-                                    alt: "Banner de consulta previa del diplomado de 120 horas, dirigido a funcionarios públicos.",
-                                },
-                                button: {
-                                    to: "diplomado-funcionarios",
-                                },
-                                shareButton: {
-                                    onClick: () =>
-                                        onShare(
-                                            "https://registro.consultaprevia.co/diplomado-funcionarios"
-                                        ),
-                                },
-                            }}
-                        >
-                            <Typography variant="body2">
-                                <strong>Nombre del curso:</strong> Diplomado de
-                                autoformación en consulta previa para
-                                fortalecimiento de capacidades institucionales
-                                <br />
-                                <strong>Objetivo:</strong> Fortalecer
-                                conocimientos y desarrollar habilidades para el
-                                acompañamiento a los procesos y procedimientos
-                                de la Consulta Previa.
-                                <br />
-                                <strong>Dirigido a:</strong> Contratista y
-                                funcionarios del Ministerio del Interior
-                                <br />
-                                <strong>Duración:</strong> 120 horas
-                                <br />
-                                <strong>Modalidad:</strong> 100% Virtual –
-                                Autogestionado
-                                <br />
-                                <strong>Contenidos:</strong>
-                                <br />
-                            </Typography>
-                            <Typography variant="body2" sx={{ ml: 2 }}>
-                                ● Qué es la Consulta Previa y sus antecedentes.
-                                <br />
-                                ● Procedimiento para la implementación de la
-                                Consulta Previa en Colombia.
-                                <br />
-                                ● Buenas y Malas Prácticas en el proceso de
-                                Consulta Previa
-                                <br />● Técnicas de negociación en el proceso de
-                                Consulta Previa.
-                            </Typography>
-                        </CourseCard>
-                    </Grid> */}
                 </Grid>
             </DialogContent>
         </Paper>

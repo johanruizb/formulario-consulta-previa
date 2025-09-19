@@ -17,6 +17,7 @@ function LargeQuestion({ slotProps }) {
             control={control}
             render={({ field, fieldState: { error } }) => (
                 <FormControl
+                    sx={slotProps?.class}
                     required
                     fullWidth
                     error={Boolean(error?.type || error?.types)}
@@ -42,7 +43,7 @@ function LargeQuestion({ slotProps }) {
                             flexDirection: "row",
                             justifyContent: "center",
                         }}
-                        value={field.value}
+                        value={field.value || slotProps.controller.defaultValue}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         ref={(el) => {
@@ -81,6 +82,7 @@ LargeQuestion.propTypes = {
     slotProps: PropTypes.shape({
         controller: PropTypes.object.isRequired,
         formRef: PropTypes.any,
+        class: PropTypes.object,
     }).isRequired,
 };
 

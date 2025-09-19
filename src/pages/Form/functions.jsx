@@ -1,3 +1,8 @@
+import { useLocalStorage } from "@uidotdev/usehooks";
+import dayjs from "dayjs";
+import { useEffect } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+
 // Curso - Grupos etnicos
 import CursoBanner from "../../assets/curso/banner.jpg";
 import CursoSmallBanner from "../../assets/curso/sm_banner.jpg";
@@ -24,7 +29,7 @@ import DiplomadoGEFooter from "../../assets/diplomado-etnicos/footer.jpg";
 import DiplomadoGESmallFooter from "../../assets/diplomado-etnicos/sm_footer.jpg";
 
 // Diplomado - botones
-import DiplomadoGEBotones from "../../assets/diplomado-etnicos/sm_footer.jpg";
+import DiplomadoGEBotones from "../../assets/diplomado-etnicos/sm_botones.jpg";
 
 function getBanner(curso, small) {
     switch (curso) {
@@ -32,7 +37,7 @@ function getBanner(curso, small) {
             return small ? CursoSmallBanner : CursoBanner;
         case "20hr-institucional":
             return small ? DiplomadoSmallBanner : DiplomadoBanner;
-        case "diplomado-etnicos":
+        case "diplomado":
             return small ? DiplomadoGESmall : DiplomadoGE;
     }
 }
@@ -43,7 +48,7 @@ function getFooter(curso, small) {
             return small ? CursoSmallFooter : CursoFooter;
         case "20hr-institucional":
             return small ? DiplomadoSmallFooter : DiplomadoFooter;
-        case "diplomado-etnicos":
+        case "diplomado":
             return small ? DiplomadoGESmallFooter : DiplomadoGEFooter;
     }
 }
@@ -54,12 +59,84 @@ function getButtonsFooter(curso, small) {
             return small ? CursoBotones : CursoFooter;
         case "20hr-institucional":
             return small ? DiplomadoBotones : DiplomadoFooter;
-        case "diplomado-etnicos":
+        case "diplomado":
             return small ? DiplomadoGEBotones : DiplomadoGEFooter;
     }
 }
 
-export { getBanner, getFooter, getButtonsFooter };
+export function useLoadForm() {
+    const [form, saveForm] = useLocalStorage("form", {});
+
+    const expires = form.expires ? dayjs(form.expires) : null;
+    const isAfter = expires ? dayjs().isAfter(expires) : false;
+
+    // Si expira el form, se limpia
+    if (expires && isAfter) return [{}, saveForm];
+    return [form.values, saveForm];
+}
+
+export function useSaveForm() {
+    const { control } = useFormContext();
+    const values = useWatch({ control });
+
+    useEffect(() => {
+        const saveImage = async () => {
+            values.frontDocument = null;
+            values.backDocument = null;
+
+            localStorage.setItem(
+                "form",
+                JSON.stringify({
+                    values,
+                    expires: dayjs().add(1, "hour").format(),
+                }),
+            );
+        };
+
+        saveImage();
+    }, [values]);
+}
+
+const sortedFields = [
+    "firstName",
+    "lastName",
+    "identityDocument",
+    "documentNumber",
+    "countryExpedition",
+    "frontDocument",
+    "backDocument",
+    "birthdate",
+    "countryBirth",
+    "stateBirth",
+    "cityBirth",
+    "gender",
+    "ethnicity",
+    "entityName",
+    "typeEntity",
+    "phoneNumber",
+    "whatsappNumber",
+    "email",
+    "stateLocation",
+    "address",
+    "neighborhood",
+    "zona",
+    "connectivity",
+    "continuar_curso_120",
+    "processingOfPersonalData",
+];
+
+export function scrollIntoError(keys, formRef) {
+    for (const field of sortedFields)
+        if (keys.includes(field)) {
+            formRef.current[field]?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+            break;
+        }
+}
+
+export { getBanner, getButtonsFooter, getFooter };
 
 const replaceAllSpaces = (e, { onBlur, onChange }) => {
     e.target.value = e.target.value?.replaceAll(" ", "") ?? "";
@@ -79,4 +156,4 @@ const toUpperCase = (e, { onBlur, onChange }) => {
     onChange?.(e);
 };
 
-export { replaceAllSpaces, trimSpaces, toUpperCase };
+export { replaceAllSpaces, toUpperCase, trimSpaces };

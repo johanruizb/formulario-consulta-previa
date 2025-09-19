@@ -1,8 +1,8 @@
 import { Turnstile } from "@marsidev/react-turnstile";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import WarningIcon from "@mui/icons-material/Warning";
-
 import SaveIcon from "@mui/icons-material/Save";
+import WarningIcon from "@mui/icons-material/Warning";
+import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -15,24 +15,15 @@ import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-
-import { useLocalStorage, useRenderCount } from "@uidotdev/usehooks";
+import { useRenderCount } from "@uidotdev/usehooks";
 import dayjs from "dayjs";
-
-import { Fragment, useEffect, useRef, useState } from "react";
-import {
-    FormProvider,
-    useForm,
-    useFormContext,
-    useWatch,
-} from "react-hook-form";
+import { Fragment, lazy, Suspense, useRef, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
-
 import useSWR from "swr";
-
 import { FORM_FIELDS_LABELS, URI } from "../../components/constant";
 import Redirect from "../../components/Form/Redirect";
-import Loging from "../../components/Loging";
+import useAlert from "../../hooks/alert/useAlert";
 import useSmall from "../../hooks/breakpoint/useSmall";
 import fetcher from "../../hooks/request/config";
 import INSCRIPCION from "../../hooks/request/inscripcion";
@@ -40,84 +31,19 @@ import { formDataFromObject } from "../../utils/form";
 import isProduction, { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
 import Formularios from "./constant";
-import { getBanner, getButtonsFooter, getFooter } from "./functions";
-import DialogMessage from "./Success";
-
-const sortedFields = [
-    "firstName",
-    "lastName",
-    "identityDocument",
-    "documentNumber",
-    "countryExpedition",
-    "frontDocument",
-    "backDocument",
-    "birthdate",
-    "countryBirth",
-    "stateBirth",
-    "cityBirth",
-    "gender",
-    "ethnicity",
-    "entityName",
-    "typeEntity",
-    "phoneNumber",
-    "whatsappNumber",
-    "email",
-    "stateLocation",
-    "address",
-    "neighborhood",
-    "zona",
-    "connectivity",
-    "continuar_curso_120",
-    "processingOfPersonalData",
-];
-
-function useLoadForm() {
-    const [form, saveForm] = useLocalStorage("form", {});
-
-    const expires = form.expires ? dayjs(form.expires) : null;
-    const isAfter = expires ? dayjs().isAfter(expires) : false;
-
-    // Si expira el form, se limpia
-    if (expires && isAfter) return [{}, saveForm];
-    return [form.values, saveForm];
-}
-
-function useSaveForm() {
-    const { control } = useFormContext();
-    const values = useWatch({ control });
-
-    useEffect(() => {
-        const saveImage = async () => {
-            values.frontDocument = null;
-            values.backDocument = null;
-
-            localStorage.setItem(
-                "form",
-                JSON.stringify({
-                    values,
-                    expires: dayjs().add(1, "hour").format(),
-                }),
-            );
-        };
-
-        saveImage();
-    }, [values]);
-}
+import {
+    getBanner,
+    getButtonsFooter,
+    getFooter,
+    scrollIntoError,
+    useLoadForm,
+    useSaveForm,
+} from "./functions";
+const Validator = lazy(() => import("../Validator/index"));
 
 function Save() {
     useSaveForm();
     return null;
-}
-
-function scrollIntoError(keys, formRef) {
-    for (const field of sortedFields)
-        if (keys.includes(field)) {
-            formRef.current[field]?.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            });
-            break;
-        }
 }
 
 //
@@ -128,6 +54,8 @@ export default function FormularioRegistro() {
         URI.API + "/inscripcion/cupos/" + curso,
         fetcher,
     );
+
+    const [registered, setRegistered] = useState();
 
     Redirect();
 
@@ -173,7 +101,6 @@ export default function FormularioRegistro() {
                     Lo sentimos, ha ocurrido un error inesperado en el servidor.
                     Por favor, inténtalo de nuevo más tarde.
                 </Typography>
-                <Loging error={error} visible />
             </Stack>
         );
 
@@ -189,8 +116,44 @@ export default function FormularioRegistro() {
         >
             <CircularProgress />
         </Stack>
-    ) : data?.curso_disponible === true ? (
-        <FullScreenDialog />
+    ) : data?.curso_disponible ? (
+        data?.cupos > 0 ? (
+            registered == false ? (
+                <FullScreenDialog />
+            ) : (
+                <Suspense
+                    fallback={
+                        <Backdrop
+                            open={true}
+                            sx={{
+                                bgcolor: "transparent",
+                            }}
+                        >
+                            <CircularProgress />
+                        </Backdrop>
+                    }
+                >
+                    <Validator state={[registered, setRegistered]} />
+                </Suspense>
+            )
+        ) : (
+            <Stack
+                alignItems="center"
+                justifyContent="center"
+                sx={{
+                    position: "fixed",
+                    width: "100%",
+                    height: "100%",
+                }}
+            >
+                <Typography variant="h4" textAlign="center">
+                    ¡Lo sentimos!
+                </Typography>
+                <Typography variant="h6" textAlign="center">
+                    No hay cupos disponibles para este curso
+                </Typography>
+            </Stack>
+        )
     ) : (
         <Stack
             alignItems="center"
@@ -205,7 +168,9 @@ export default function FormularioRegistro() {
                 ¡Lo sentimos!
             </Typography>
             <Typography variant="h6" textAlign="center">
-                No hay cupos disponibles para este curso
+                Las inscripciones para este curso han finalizado.
+                <br />
+                Gracias por tu interés. ¡Te esperamos en futuras ediciones!
             </Typography>
         </Stack>
     );
@@ -220,7 +185,8 @@ function FullScreenDialog() {
     const [disabled, setDisabled] = useState(isProduction);
     const [sending, setSending] = useState(false);
 
-    const [, setMessage] = useLocalStorage("DialogMessage", null); // {message: "string", error: "boolean"}
+    // const [, setMessage] = useLocalStorage("DialogMessage", null); // {message: "string", error: "boolean"}
+    const { onOpen: setAlert } = useAlert();
 
     const [form, saveForm] = useLoadForm();
 
@@ -238,11 +204,22 @@ function FullScreenDialog() {
     };
 
     const onOpenAlert = (message, error = false, title) => {
-        setMessage({ message, error, title });
+        setAlert({ message, error, title });
+    };
+
+    const onSuccess = (token) => {
+        setDisabled(false);
+        methods.setValue("turnstile_token", token);
+    };
+
+    const onExpire = () => {
+        setDisabled(true);
+        ref.current?.reset();
     };
 
     const onSubmit = (data) => {
-        if (isProduction) setSending(true);
+        // if (isProduction)
+        setSending(true);
         const start = dayjs();
 
         const formData = formDataFromObject({ ...data, curso });
@@ -250,36 +227,30 @@ function FullScreenDialog() {
         INSCRIPCION.registrar(formData)
             .then((response) => {
                 setTimeout(async () => {
-                    if (response.ok) {
-                        const res = await response.json();
-                        onOpenAlert(
-                            res.message ??
-                                "Sus datos han sido registrados. El equipo del proyecto se pondrá en contacto con usted en los próximos días para brindarle más información",
-                        );
-                        if (isProduction) onCancel();
-                    } else {
-                        response
-                            ?.json()
-                            .then((data) => {
+                    response
+                        .json()
+                        .then((res) => {
+                            if (response.ok) {
+                                onOpenAlert(res.message);
+                                if (isProduction) onCancel();
+                            } else {
                                 onOpenAlert(
-                                    data.message ??
+                                    res.message ??
                                         `Algo ha fallado al registrarse (${
                                             response.status
                                         }_${response.statusText.toUpperCase()})`,
                                     true,
                                 );
-                            })
-                            .catch(() => {
-                                onOpenAlert(
-                                    "No se ha obtenido respuesta del servidor",
-                                    true,
-                                );
-                            })
-                            .finally(() => {
-                                onExpire();
-                            });
-                        setSending(false);
-                    }
+                            }
+                        })
+                        .catch(() => {
+                            onOpenAlert(
+                                "No se ha obtenido respuesta del servidor",
+                                true,
+                            );
+                            onExpire();
+                        });
+                    setSending(false);
                 }, getTimeout(start));
             })
             .catch(() => {
@@ -290,7 +261,6 @@ function FullScreenDialog() {
 
     const onError = (error) => {
         const keys = Object.keys(error);
-
         let fields = keys
             // .slice(0, 2)
             .map((key) => FORM_FIELDS_LABELS[key])
@@ -306,16 +276,7 @@ function FullScreenDialog() {
             "El formulario contiene errores",
         );
         scrollIntoError(keys, formRef);
-    };
-
-    const onSuccess = (token) => {
-        setDisabled(false);
-        methods.setValue("turnstile_token", token);
-    };
-
-    const onExpire = () => {
-        setDisabled(true);
-        ref.current?.reset();
+        onExpire();
     };
 
     const Banner = getBanner(curso, small);
@@ -403,8 +364,8 @@ function FullScreenDialog() {
                                             label={`form_button_${window.location.hostname}`}
                                             siteKey={
                                                 isProduction
-                                                    ? "0x4AAAAAAAiIftnN7i8Mr-yd"
-                                                    : "0x4AAAAAAAiIgbhjquURIMbK"
+                                                    ? "0x4AAAAAAB2McbF4i64uJyTJ"
+                                                    : "1x00000000000000000000AA"
                                             }
                                             sx={{
                                                 mb: 2,
@@ -493,7 +454,6 @@ function FullScreenDialog() {
                     )}
                 </DialogActions>
             </Dialog>
-            <DialogMessage />
         </Fragment>
     );
 }
