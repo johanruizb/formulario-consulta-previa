@@ -51,13 +51,13 @@ const COLOMBIA = {
 const URI = {
     FORM: isProduction
         ? "https://panel.consultaprevia.net/api/ubicacion"
-        : `http://${window.location.hostname}:8080/api/ubicacion`,
+        : `http://${window.location.hostname}:21411/api/ubicacion`,
     API: isProduction
         ? "https://panel.consultaprevia.net/api/v1"
-        : `http://${window.location.hostname}:8080/api/v1`,
+        : `http://${window.location.hostname}:21411/api/v1`,
     SERVER: isProduction
         ? "https://panel.consultaprevia.net"
-        : `http://${window.location.hostname}:8080`,
+        : `http://${window.location.hostname}:21411`,
 };
 
 const FORM_FIELDS_LABELS = {
@@ -88,7 +88,9 @@ const FORM_FIELDS_LABELS = {
     stateLocation: "Departamento de residencia",
     processingOfPersonalData:
         "Autorización para el tratamiento de datos personales",
+    "cf-turnstile-response": "Verificación Captcha",
+    cursos_inscritos: "Curso al que se inscribe",
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export { COLOMBIA, URI, FORM_FIELDS_LABELS };
+export { COLOMBIA, FORM_FIELDS_LABELS, URI };

@@ -1,22 +1,29 @@
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import Typography from "@mui/material/Typography";
-
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ErrorIcon from "@mui/icons-material/Error";
 import CloseIcon from "@mui/icons-material/Close";
-
+import ErrorIcon from "@mui/icons-material/Error";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import { useLocalStorage } from "@uidotdev/usehooks";
+import Typography from "@mui/material/Typography";
+import { useSessionStorage } from "@uidotdev/usehooks";
 import { Fragment } from "react";
 
 function AlertDialog() {
-    const [alert, setAlert] = useLocalStorage("DialogMessage", null); // {message: "string", title: "string", error: "boolean"}
-    const onClose = () => setAlert(null);
+    const [alert, setAlert] = useSessionStorage("DialogMessage", null);
+
+    const onClose = () => {
+        if (alert?.refreshOnAccept) window.location.reload();
+        setAlert(null);
+    };
+
+    const onAccept = () => {
+        if (alert?.refreshOnAccept) window.location.reload();
+        onClose();
+    };
 
     return (
         alert &&
@@ -94,7 +101,7 @@ function AlertDialog() {
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button autoFocus onClick={onClose} color="primary">
+                    <Button autoFocus onClick={onAccept} color="primary">
                         Listo
                     </Button>
                 </DialogActions>

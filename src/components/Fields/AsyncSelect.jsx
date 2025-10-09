@@ -7,16 +7,11 @@ import Select from "@mui/material/Select";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-
 import { useRenderCount } from "@uidotdev/usehooks";
-
 import dayjs from "dayjs";
-
 import PropTypes from "prop-types";
-
 import { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-
 import { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
 import SelectPlaceHolder from "./SelectPlaceHolder";
@@ -108,14 +103,17 @@ export default function AsyncSelect({ slotProps, fetchProps = {} }) {
                                 field.ref(el);
                             }}
                         >
-                            {options?.map((option) => (
-                                <MenuItem
-                                    key={option.id}
-                                    value={option.iso2 ?? option.id}
-                                >
-                                    {option.name}
-                                </MenuItem>
-                            ))}
+                            {options?.map((option, index) => {
+                                const uniqueKey = `${field.name}-${option.iso2 ?? option.id}-${index}`;
+                                return (
+                                    <MenuItem
+                                        key={uniqueKey}
+                                        value={option.iso2 ?? option.id}
+                                    >
+                                        {option.name}
+                                    </MenuItem>
+                                );
+                            })}
                         </Select>
                         <FormHelperText>{error?.message ?? " "}</FormHelperText>
                     </FormControl>

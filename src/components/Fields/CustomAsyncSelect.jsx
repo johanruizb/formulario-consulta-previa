@@ -4,16 +4,12 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Skeleton from "@mui/material/Skeleton";
-
-import { Controller, useFormContext, useWatch } from "react-hook-form";
-
-import useSWRImmutable from "swr/immutable";
-
 import { useRenderCount } from "@uidotdev/usehooks";
+import PropTypes from "prop-types";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
+import useSWRImmutable from "swr/immutable";
 import { format } from "../utils";
 import Counter from "./Counter";
-
-import PropTypes from "prop-types";
 
 function getCustomURL(url, values) {
     return format(url, values);
@@ -114,14 +110,19 @@ function AsyncSelect({ slotProps }) {
                             }}
                         >
                             {fieldProps?.options?.length > 0 &&
-                                fieldProps?.options?.map((option) => (
-                                    <MenuItem
-                                        key={option.id}
-                                        value={option.iso2 ?? option.id}
-                                    >
-                                        {option.name}
-                                    </MenuItem>
-                                ))}
+                                fieldProps?.options?.map((option, index) => {
+                                    const uniqueKey = `${field.name}-${
+                                        option.iso2 ?? option.id
+                                    }-${index}`;
+                                    return (
+                                        <MenuItem
+                                            key={uniqueKey}
+                                            value={option.iso2 ?? option.id}
+                                        >
+                                            {option.name}
+                                        </MenuItem>
+                                    );
+                                })}
                         </Select>
                         <FormHelperText>{error?.message ?? " "}</FormHelperText>
                     </FormControl>
