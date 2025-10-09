@@ -1,14 +1,12 @@
-// import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid2";
 import Paper from "@mui/material/Paper";
-
-import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import CourseCard from "../../components/Home/CourseCard";
 import useSmall from "../../hooks/breakpoint/useSmall";
-import { getBanner } from "../Form/functions";
+import { getBanner } from "../../config/courseAssets";
 
 export default function Home() {
     const small = useSmall();
