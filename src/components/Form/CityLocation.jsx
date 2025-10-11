@@ -10,9 +10,7 @@ export default function CityLocation() {
         <DependentSelect
             watchFields="stateLocation"
             urlBuilder={(state) =>
-                state
-                    ? `${URI.FORM}/v1/countries/CO/states/${state}/cities`
-                    : null
+                state ? `${URI.FORM}/countries/CO/states/${state}/cities` : null
             }
             name="cityLocation"
             label="Ciudad de residencia"

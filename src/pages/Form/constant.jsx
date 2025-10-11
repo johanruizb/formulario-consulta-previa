@@ -214,7 +214,7 @@ function useFieldForm(methods, isEditing = false) {
                           required: true,
                       },
                       fetch: {
-                          url: `${URI.FORM}/v1/countries`,
+                          url: `${URI.FORM}/countries`,
                       },
                   },
                   {
@@ -255,7 +255,7 @@ function useFieldForm(methods, isEditing = false) {
                           required: true,
                       },
                       fetch: {
-                          url: `${URI.FORM}/v1/countries`,
+                          url: `${URI.FORM}/countries`,
                       },
                   },
                   {
@@ -276,7 +276,7 @@ function useFieldForm(methods, isEditing = false) {
                           required: true,
                       },
                       fetch: {
-                          url: `${URI.FORM}/v1/countries/$1/states`,
+                          url: `${URI.FORM}/countries/$1/states`,
                       },
                   },
                   {
@@ -297,7 +297,7 @@ function useFieldForm(methods, isEditing = false) {
                           required: true,
                       },
                       fetch: {
-                          url: `${URI.FORM}/v1/countries/$1/states/$2/cities`,
+                          url: `${URI.FORM}/countries/$1/states/$2/cities`,
                       },
                   },
                   {
@@ -569,7 +569,7 @@ function useFieldForm(methods, isEditing = false) {
                           required: true,
                       },
                       fetch: {
-                          url: `${URI.FORM}/v1/countries/CO/states`,
+                          url: `${URI.FORM}/countries/CO/states`,
                       },
                   },
                   {
@@ -590,7 +590,7 @@ function useFieldForm(methods, isEditing = false) {
                           required: true,
                       },
                       fetch: {
-                          url: `${URI.FORM}/v1/countries/CO/states/$1/cities`,
+                          url: `${URI.FORM}/countries/CO/states/$1/cities`,
                       },
                   },
                   {

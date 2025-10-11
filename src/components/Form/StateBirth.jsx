@@ -11,7 +11,7 @@ export default function StateBirth({ formRef }) {
         <DependentSelect
             watchFields="countryBirth"
             urlBuilder={(country) =>
-                country ? `${URI.FORM}/v1/countries/${country}/states` : null
+                country ? `${URI.FORM}/countries/${country}/states` : null
             }
             name="stateBirth"
             label="Departamento de nacimiento"

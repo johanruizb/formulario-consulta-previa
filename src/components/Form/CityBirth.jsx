@@ -12,7 +12,7 @@ export default function CityBirth({ formRef }) {
             watchFields={["countryBirth", "stateBirth"]}
             urlBuilder={([country, state]) =>
                 country && state
-                    ? `${URI.FORM}/v1/countries/${country}/states/${state}/cities`
+                    ? `${URI.FORM}/countries/${country}/states/${state}/cities`
                     : null
             }
             name="cityBirth"
