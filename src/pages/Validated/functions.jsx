@@ -95,7 +95,7 @@ export function convertObjetToFormatterCorrect(obj) {
     } catch (e) {
         console.log(e);
     }
-    console.log(response);
+
     return response;
 }
 
@@ -129,5 +129,4 @@ const transformObjt = {
     etnia: "ethnicity",
     tipo_cliente: "typeEntity",
     ciudad: "cityLocation",
-    turnstile_token: "turnstile_token",
 };

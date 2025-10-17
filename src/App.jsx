@@ -1,72 +1,30 @@
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import { Fragment, lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
-import useSWR from "swr";
-import AlertDialog from "./components/AlertDialog";
-import { URI } from "./components/constant";
-import fetcher from "./hooks/request/config";
+import AlertDialog from "./components/AlertDialogNew";
+import { LoadingBackdrop } from "./components/ui";
+import { useEnrollmentStatus } from "./hooks/useAPI";
 import ListaEspera from "./pages/Espera";
 
 import "./App.css";
+import FormularioDiplomado from "./pages/Form";
 
-const Home = lazy(() => import("./pages/Home"));
-const FormularioRegistro = lazy(() => import("./pages/Form"));
 const ErrorNotFound = lazy(() => import("./pages/Error/404"));
 
 function App() {
-    const { data: estado, isLoading } = useSWR(
-        URI.API + "/inscripcion/estado",
-        fetcher,
-    );
+    const { isActive, isLoading } = useEnrollmentStatus();
 
-    return isLoading ? (
-        <Backdrop
-            open={true}
-            sx={{
-                bgcolor: "transparent",
-            }}
-        >
-            <CircularProgress />
-        </Backdrop>
-    ) : (
+    if (isLoading) {
+        return <LoadingBackdrop />;
+    }
+
+    return (
         <Fragment>
-            {estado?.activo ? (
+            {isActive ? (
                 <Routes>
-                    <Route
-                        path=":curso"
-                        element={
-                            <Suspense
-                                fallback={
-                                    <Backdrop
-                                        open={true}
-                                        sx={{
-                                            bgcolor: "transparent",
-                                        }}
-                                    >
-                                        <CircularProgress />
-                                    </Backdrop>
-                                }
-                            >
-                                <FormularioRegistro />
-                            </Suspense>
-                        }
-                    />
                     <Route
                         path="404"
                         element={
-                            <Suspense
-                                fallback={
-                                    <Backdrop
-                                        open={true}
-                                        sx={{
-                                            bgcolor: "transparent",
-                                        }}
-                                    >
-                                        <CircularProgress />
-                                    </Backdrop>
-                                }
-                            >
+                            <Suspense fallback={<LoadingBackdrop />}>
                                 <ErrorNotFound />
                             </Suspense>
                         }
@@ -74,19 +32,8 @@ function App() {
                     <Route
                         path="/"
                         element={
-                            <Suspense
-                                fallback={
-                                    <Backdrop
-                                        open={true}
-                                        sx={{
-                                            bgcolor: "transparent",
-                                        }}
-                                    >
-                                        <CircularProgress />
-                                    </Backdrop>
-                                }
-                            >
-                                <Home />
+                            <Suspense fallback={<LoadingBackdrop />}>
+                                <FormularioDiplomado />
                             </Suspense>
                         }
                     />

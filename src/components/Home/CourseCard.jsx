@@ -13,7 +13,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom/dist";
 import useSmall from "../../hooks/breakpoint/useSmall";
-import { getBanner } from "../../pages/Form/functions";
+import { getBanner } from "../../config/courseAssets";
 
 import { Fragment } from "react";
 import useSWR from "swr";

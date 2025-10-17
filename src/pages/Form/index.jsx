@@ -1,11 +1,8 @@
-import { Turnstile } from "@marsidev/react-turnstile";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import SaveIcon from "@mui/icons-material/Save";
-import WarningIcon from "@mui/icons-material/Warning";
-import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -17,270 +14,183 @@ import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { useRenderCount } from "@uidotdev/usehooks";
 import dayjs from "dayjs";
-import { Fragment, lazy, Suspense, useRef, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
-import useSWR from "swr";
-import { FORM_FIELDS_LABELS, URI } from "../../components/constant";
+import { Fragment, lazy, Suspense, useCallback, useRef, useState } from "react";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { FORM_FIELDS_LABELS } from "../../components/constant";
 import Redirect from "../../components/Form/Redirect";
-import useAlert from "../../hooks/alert/useAlert";
-import useSmall from "../../hooks/breakpoint/useSmall";
-import fetcher from "../../hooks/request/config";
-import INSCRIPCION from "../../hooks/request/inscripcion";
-import { formDataFromObject } from "../../utils/form";
-import isProduction, { isDevelopment } from "../../utils/isProduction";
-import getTimeout from "../../utils/timeout";
-import Formularios from "./constant";
+import {
+    ErrorState,
+    LoadingBackdrop,
+    LoadingState,
+    MessageState,
+} from "../../components/ui";
 import {
     getBanner,
     getButtonsFooter,
     getFooter,
-    scrollIntoError,
-    useLoadForm,
-    useSaveForm,
-} from "./functions";
+} from "../../config/courseAssets";
+import useAlert from "../../hooks/alert/useAlertNew";
+import useSmall from "../../hooks/breakpoint/useSmall";
+import { useCourseSlots } from "../../hooks/useAPI";
+import enrollmentService from "../../services/enrollmentService";
+import { formDataFromObject } from "../../utils/form";
+import { isDevelopment } from "../../utils/isProduction";
+import getTimeout from "../../utils/timeout";
+import { default as useFieldForm } from "./constant";
+import { scrollIntoError } from "./functions";
 const Validator = lazy(() => import("../Validator/index"));
 
-function Save() {
-    useSaveForm();
-    return null;
-}
-
-//
-
-export default function FormularioRegistro() {
-    const { curso = "20hr" } = useParams();
-    const { data, isLoading, isValidating, error } = useSWR(
-        URI.API + "/inscripcion/cupos/" + curso,
-        fetcher,
-    );
+export default function FormularioDiplomado() {
+    const { isLoading, isValidating, error, isAvailable, hasSlots } =
+        useCourseSlots("diplomado-2025-1");
 
     const [registered, setRegistered] = useState();
+    const methods = useForm({ mode: "onBlur" });
 
     Redirect();
 
-    if (error)
-        return (
-            <Stack
-                alignItems="center"
-                justifyContent="center"
-                sx={{
-                    position: "fixed",
-                    width: "100%",
-                    height: "100%",
-                }}
-            >
-                <Stack direction="row" alignItems="center" spacing={1.25}>
-                    <Typography
-                        // variant="h4"
-                        textAlign="center"
-                        fontFamily="monospace"
-                        sx={{
-                            fontWeight: "bold",
-                            fontSize: 24,
-                        }}
-                    >
-                        Error {error?.status || -1}
-                    </Typography>
-                    {isValidating ? (
-                        <CircularProgress size={24} />
-                    ) : (
-                        <WarningIcon
-                            color="warning"
-                            sx={{
-                                fontSize: 24,
-                            }}
-                        />
-                    )}
-                </Stack>
-                <Typography
-                    // variant="h6"
-                    textAlign="center"
-                    fontFamily="monospace"
-                >
-                    Lo sentimos, ha ocurrido un error inesperado en el servidor.
-                    Por favor, inténtalo de nuevo más tarde.
-                </Typography>
-            </Stack>
-        );
+    // Estado de error
+    if (error) {
+        return <ErrorState error={error} isValidating={isValidating} />;
+    }
 
-    return isLoading ? (
-        <Stack
-            alignItems="center"
-            justifyContent="center"
-            sx={{
-                position: "fixed",
-                width: "100%",
-                height: "100%",
-            }}
-        >
-            <CircularProgress />
-        </Stack>
-    ) : data?.curso_disponible ? (
-        data?.cupos > 0 ? (
-            registered == false ? (
-                <FullScreenDialog />
-            ) : (
-                <Suspense
-                    fallback={
-                        <Backdrop
-                            open={true}
-                            sx={{
-                                bgcolor: "transparent",
-                            }}
-                        >
-                            <CircularProgress />
-                        </Backdrop>
-                    }
-                >
-                    <Validator state={[registered, setRegistered]} />
-                </Suspense>
-            )
-        ) : (
-            <Stack
-                alignItems="center"
-                justifyContent="center"
-                sx={{
-                    position: "fixed",
-                    width: "100%",
-                    height: "100%",
-                }}
-            >
-                <Typography variant="h4" textAlign="center">
-                    ¡Lo sentimos!
-                </Typography>
-                <Typography variant="h6" textAlign="center">
-                    No hay cupos disponibles para este curso
-                </Typography>
-            </Stack>
-        )
+    // Estado de carga
+    if (isLoading) {
+        return <LoadingState />;
+    }
+
+    // Curso no disponible
+    if (!isAvailable) {
+        return (
+            <MessageState
+                title="¡Lo sentimos!"
+                message={
+                    <>
+                        Las inscripciones han finalizado.
+                        <br />
+                        Gracias por tu interés. ¡Te esperamos en futuras
+                        ediciones!
+                    </>
+                }
+            />
+        );
+    }
+
+    // Sin cupos
+    if (!hasSlots) {
+        return (
+            <MessageState
+                title="¡Lo sentimos!"
+                message="No hay cupos disponibles para este curso"
+            />
+        );
+    }
+
+    // Mostrar formulario o validador
+    return registered === false ? (
+        <FormProvider {...methods}>
+            <FullScreenDialog />
+        </FormProvider>
     ) : (
-        <Stack
-            alignItems="center"
-            justifyContent="center"
-            sx={{
-                position: "fixed",
-                width: "100%",
-                height: "100%",
-            }}
-        >
-            <Typography variant="h4" textAlign="center">
-                ¡Lo sentimos!
-            </Typography>
-            <Typography variant="h6" textAlign="center">
-                Las inscripciones para este curso han finalizado.
-                <br />
-                Gracias por tu interés. ¡Te esperamos en futuras ediciones!
-            </Typography>
-        </Stack>
+        <Suspense fallback={<LoadingBackdrop />}>
+            <FormProvider {...methods}>
+                <Validator state={[registered, setRegistered]} />
+            </FormProvider>
+        </Suspense>
     );
 }
 
 function FullScreenDialog() {
-    const { curso = "20hr" } = useParams();
-
-    const ref = useRef();
     const formRef = useRef({});
 
-    const [disabled, setDisabled] = useState(isProduction);
     const [sending, setSending] = useState(false);
 
-    // const [, setMessage] = useLocalStorage("DialogMessage", null); // {message: "string", error: "boolean"}
-    const { onOpen: setAlert } = useAlert();
-
-    const [form, saveForm] = useLoadForm();
+    const { showAlert } = useAlert();
 
     const renderCount = useRenderCount();
-    const methods = useForm({ mode: "onBlur", defaultValues: form });
+    const methods = useFormContext();
     const { handleSubmit } = methods;
 
     const theme = useTheme();
     const small = useSmall();
 
-    const onCancel = () => {
+    const onCancel = useCallback(() => {
         setSending(true);
-        saveForm({});
         setTimeout(() => location.reload(), 750);
-    };
+    }, [setSending]);
 
-    const onOpenAlert = (message, error = false, title) => {
-        setAlert({ message, error, title });
-    };
+    const onSubmit = useCallback(
+        async (data) => {
+            try {
+                setSending(true);
+                const start = dayjs();
 
-    const onSuccess = (token) => {
-        setDisabled(false);
-        methods.setValue("turnstile_token", token);
-    };
+                const formData = formDataFromObject({ ...data });
 
-    const onExpire = () => {
-        setDisabled(true);
-        ref.current?.reset();
-    };
+                // Ejecutar request
+                const response = await enrollmentService.register(formData);
 
-    const onSubmit = (data) => {
-        // if (isProduction)
-        setSending(true);
-        const start = dayjs();
+                // Mantener delay mínimo para UX (750ms)
+                const minDelay = getTimeout(start);
+                if (minDelay > 0) {
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, minDelay),
+                    );
+                }
 
-        const formData = formDataFromObject({ ...data, curso });
+                const result = await response.json();
 
-        INSCRIPCION.registrar(formData)
-            .then((response) => {
-                setTimeout(async () => {
-                    response
-                        .json()
-                        .then((res) => {
-                            if (response.ok) {
-                                onOpenAlert(res.message);
-                                if (isProduction) onCancel();
-                            } else {
-                                onOpenAlert(
-                                    res.message ??
-                                        `Algo ha fallado al registrarse (${
-                                            response.status
-                                        }_${response.statusText.toUpperCase()})`,
-                                    true,
-                                );
-                            }
-                        })
-                        .catch(() => {
-                            onOpenAlert(
-                                "No se ha obtenido respuesta del servidor",
-                                true,
-                            );
-                            onExpire();
-                        });
-                    setSending(false);
-                }, getTimeout(start));
-            })
-            .catch(() => {
-                onOpenAlert("Ha ocurrido un error en el servidor", true);
+                if (response.ok) {
+                    showAlert({
+                        message: result.message,
+                        refreshOnAccept: true,
+                    });
+                } else {
+                    showAlert({
+                        message:
+                            result.message ??
+                            `Error al registrarse (${response.status} - ${response.statusText})`,
+                        error: true,
+                    });
+                }
+            } catch (error) {
+                console.error("Error en registro:", error);
+                showAlert({
+                    message: "Error de conexión. Intenta nuevamente.",
+                    error: true,
+                });
+            } finally {
                 setSending(false);
+            }
+        },
+        [setSending, showAlert],
+    );
+
+    const onError = useCallback(
+        (error) => {
+            const keys = Object.keys(error);
+            let fields = keys
+                // .slice(0, 2)
+                .map((key) => FORM_FIELDS_LABELS[key])
+                .join(", ");
+
+            if (keys.length >= 3) {
+                fields = `${fields}`;
+            }
+            showAlert({
+                message: "Por favor verifica los campos: \n" + fields,
+                error: true,
+                title: "El formulario contiene errores",
             });
-    };
+            scrollIntoError(keys, formRef);
+        },
+        [showAlert, formRef],
+    );
 
-    const onError = (error) => {
-        const keys = Object.keys(error);
-        let fields = keys
-            // .slice(0, 2)
-            .map((key) => FORM_FIELDS_LABELS[key])
-            .join(", ");
+    const Banner = getBanner("diplomado", small);
+    const Footer = getFooter("diplomado", small);
 
-        if (keys.length >= 3) {
-            // fields = `${fields}... y ${keys.length - 2} más`;
-            fields = `${fields}`;
-        }
-        onOpenAlert(
-            "Por favor verifica los campos: \n" + fields,
-            "error",
-            "El formulario contiene errores",
-        );
-        scrollIntoError(keys, formRef);
-        onExpire();
-    };
-
-    const Banner = getBanner(curso, small);
-    const Footer = getFooter(curso, small);
+    const { fields } = useFieldForm(methods);
 
     return (
         <Fragment>
@@ -322,7 +232,7 @@ function FullScreenDialog() {
                         <FormProvider {...methods}>
                             <Box component="form" autoComplete="one-time-code">
                                 <Grid container spacing={1.25}>
-                                    {Formularios[curso]?.map((field, index) => {
+                                    {fields?.map((field, index) => {
                                         const {
                                             Component,
                                             gridless = false,
@@ -351,33 +261,9 @@ function FullScreenDialog() {
                                             </Grid>
                                         );
                                     })}
-                                    <Grid size={12}>
-                                        <Box
-                                            component={Turnstile}
-                                            onSuccess={onSuccess}
-                                            onExpire={onExpire}
-                                            options={{
-                                                theme: "light",
-                                                refreshExpired: "manual",
-                                            }}
-                                            ref={ref}
-                                            label={`form_button_${window.location.hostname}`}
-                                            siteKey={
-                                                isProduction
-                                                    ? "0x4AAAAAAB2McbF4i64uJyTJ"
-                                                    : "1x00000000000000000000AA"
-                                            }
-                                            sx={{
-                                                mb: 2,
-                                                display: "flex",
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                            }}
-                                        />
-                                    </Grid>
                                 </Grid>
                             </Box>
-                            <Save />
+                            {/* <Save /> */}
                         </FormProvider>
                         <Stack alignItems="center">
                             <Link href="https://www.freepik.es/vector-gratis/icono-perfil-plano-dibujado-mano_17539369.htm#fromView=search&page=1&position=29&uuid=fa87b794-1c3a-486d-b7a0-5aa2d7a92f9e">
@@ -393,6 +279,7 @@ function FullScreenDialog() {
                             width: "100%",
                             pt: 1.25,
                             mb: "-5px",
+                            // aspectRatio: "16:9",
                         }}
                     />
                 </DialogContent>
@@ -400,7 +287,7 @@ function FullScreenDialog() {
                     sx={{
                         justifyContent: "space-between",
                         backgroundImage: `url(${getButtonsFooter(
-                            curso,
+                            "diplomado",
                             small,
                         )})`,
                         backgroundSize: "cover",
@@ -425,31 +312,67 @@ function FullScreenDialog() {
                         <Fragment>
                             <Button
                                 onClick={onCancel}
+                                variant="text"
                                 startIcon={<DeleteForeverIcon />}
                                 sx={{
-                                    color: window.location.pathname.includes(
-                                        "20hr",
-                                    )
-                                        ? "white"
-                                        : "black",
+                                    color: "black",
+                                    display: {
+                                        xs: "none",
+                                        md: "flex",
+                                    },
                                 }}
                             >
                                 Limpiar formulario
                             </Button>
-                            <Button
-                                onClick={handleSubmit(onSubmit, onError)}
-                                endIcon={<SaveIcon />}
-                                disabled={disabled}
+                            <Box
                                 sx={{
-                                    color: window.location.pathname.includes(
-                                        "20hr",
-                                    )
-                                        ? "white"
-                                        : "black",
+                                    flexGrow: 1,
+                                    display: {
+                                        xs: "flex",
+                                        md: "none",
+                                    },
                                 }}
+                            />
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={0}
                             >
-                                Registrarse
-                            </Button>
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={0}
+                                    sx={{
+                                        mr: 1,
+                                    }}
+                                >
+                                    <DoubleArrowIcon color="primary" />
+                                    <DoubleArrowIcon color="primary" />
+                                </Stack>
+                                <Button
+                                    onClick={handleSubmit(onSubmit, onError)}
+                                    variant="contained"
+                                    color="success"
+                                    size="large"
+                                    endIcon={<SaveIcon />}
+                                    sx={{
+                                        fontWeight: "bold",
+                                        px: 4,
+                                        boxShadow: 3,
+                                        "&:hover": {
+                                            boxShadow: 6,
+                                            transform: "scale(1.02)",
+                                            transition: "all 0.2s ease-in-out",
+                                        },
+                                        "&:disabled": {
+                                            backgroundColor:
+                                                "action.disabledBackground",
+                                        },
+                                    }}
+                                >
+                                    Registrarse
+                                </Button>
+                            </Stack>
                         </Fragment>
                     )}
                 </DialogActions>

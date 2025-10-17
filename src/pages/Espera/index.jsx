@@ -1,123 +1,89 @@
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import SaveIcon from "@mui/icons-material/Save";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import Grid from "@mui/material/Grid2";
+import LinearProgress from "@mui/material/LinearProgress";
 import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { Fragment, useRef, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
-import useSmall from "../../hooks/breakpoint/useSmall";
+import { FORM_FIELDS_LABELS } from "../../components/constant";
 import {
     getBanner,
     getButtonsFooter,
     getFooter,
-    scrollIntoError,
-    useLoadForm,
-    useSaveForm,
-} from "../Form/functions";
-
-import { Turnstile } from "@marsidev/react-turnstile";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import LinearProgress from "@mui/material/LinearProgress";
-import Typography from "@mui/material/Typography";
-import dayjs from "dayjs";
-import { Fragment, useRef, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { FORM_FIELDS_LABELS } from "../../components/constant";
-import useAlert from "../../hooks/alert/useAlert";
-import useLoading from "../../hooks/loading/useLoading";
+} from "../../config/courseAssets";
+import { useAlert } from "../../hooks/alert/useAlertNew";
+import useSmall from "../../hooks/breakpoint/useSmall";
 import INSCRIPCION from "../../hooks/request/inscripcion";
 import isProduction from "../../utils/isProduction";
+import { scrollIntoError } from "../Form/functions";
 import WaitListFields from "./constants";
-// import Grid from "@mui/material/Grid";
-import Grid from "@mui/material/Grid2";
-
-function Save() {
-    useSaveForm();
-    return null;
-}
 
 function ListaEspera() {
     const { curso = "diplomado" } = useParams();
-
-    const ref = useRef(null);
     const formRef = useRef({});
-
     const small = useSmall();
 
-    const [disabled, setDisabled] = useState(isProduction);
+    const [loading, setLoading] = useState(false);
 
     const Banner = getBanner(curso, small);
     const Footer = getFooter(curso, small);
 
-    const [form, saveForm] = useLoadForm();
     const methods = useForm({
         mode: "onBlur",
-        defaultValues: form,
     });
 
-    const { onOpen: setAlert } = useAlert();
-    const { loading, start, finish } = useLoading();
+    const { showAlert } = useAlert();
 
     const onCancel = () => {
-        saveForm({});
         setTimeout(() => location.reload(), 750);
     };
 
     const onSubmit = (data) => {
-        start(dayjs());
+        setLoading(true);
         INSCRIPCION.espera(data)
             .then((response) =>
-                finish(() => {
-                    response
-                        .json()
-                        .then((res) => {
-                            if (response.ok) {
-                                setAlert({
-                                    message: res.message,
-                                });
-                                if (isProduction) onCancel();
-                            } else {
-                                console.log(res.message);
-
-                                setAlert({
-                                    message:
-                                        res.message ??
-                                        `Algo ha fallado al registrarse (${
-                                            response.status
-                                        }_${response.statusText.toUpperCase()})`,
-                                    error: true,
-                                });
-                            }
-                        })
-                        .catch(() => {
-                            setAlert({
+                response
+                    .json()
+                    .then((res) => {
+                        if (response.ok) {
+                            showAlert({
+                                message: res.message,
+                                refreshOnAccept: true,
+                            });
+                            if (isProduction) onCancel();
+                        } else {
+                            showAlert({
                                 message:
-                                    "No se ha obtenido respuesta del servidor",
+                                    res.message ??
+                                    `Algo ha fallado al registrarse (${
+                                        response.status
+                                    }_${response.statusText.toUpperCase()})`,
                                 error: true,
                             });
-                            onExpire();
+                        }
+                    })
+                    .catch(() => {
+                        showAlert({
+                            message: "No se ha obtenido respuesta del servidor",
+                            error: true,
                         });
-                }),
+                    }),
             )
             .catch(() =>
-                finish(() =>
-                    setAlert({
-                        message: "Ha ocurrido un error en el servidor",
-                        error: true,
-                    }),
-                ),
-            );
-    };
-
-    const onSuccess = (token) => {
-        setDisabled(false);
-        methods.setValue("turnstile_token", token);
-    };
-
-    const onExpire = () => {
-        setDisabled(true);
-        ref.current?.reset();
+                showAlert({
+                    message: "Ha ocurrido un error en el servidor",
+                    error: true,
+                }),
+            )
+            .finally(() => setLoading(false));
     };
 
     const onError = (error) => {
@@ -131,13 +97,12 @@ function ListaEspera() {
             // fields = `${fields}... y ${keys.length - 2} más`;
             fields = `${fields}`;
         }
-        setAlert({
+        showAlert({
             message: "Por favor verifica los campos: \n" + fields,
             error: true,
             title: "El formulario contiene errores",
         });
         scrollIntoError(keys, formRef);
-        onExpire();
     };
 
     return (
@@ -216,31 +181,7 @@ function ListaEspera() {
                                     })}
                                 </Grid>
                             </Box>
-                            <Save />
                         </FormProvider>
-                        <Box
-                            component={Turnstile}
-                            onSuccess={onSuccess}
-                            onExpire={onExpire}
-                            options={{
-                                theme: "light",
-                                refreshExpired: "manual",
-                            }}
-                            ref={ref}
-                            label={`form_button_${window.location.hostname}`}
-                            siteKey={
-                                isProduction
-                                    ? "0x4AAAAAAB2McbF4i64uJyTJ"
-                                    : "1x00000000000000000000AA"
-                            }
-                            sx={{
-                                mb: "19.91px !important",
-                                mt: "0 !important",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }}
-                        />
                     </Stack>
                 </Box>
                 <Box
@@ -278,27 +219,66 @@ function ListaEspera() {
                     <Fragment>
                         <Button
                             onClick={onCancel}
+                            variant="text"
                             startIcon={<DeleteForeverIcon />}
                             sx={{
-                                color: window.location.pathname.includes("20hr")
-                                    ? "white"
-                                    : "black",
+                                color: "black",
+                                display: {
+                                    xs: "none",
+                                    md: "flex",
+                                },
                             }}
                         >
                             Limpiar formulario
                         </Button>
-                        <Button
-                            onClick={methods.handleSubmit(onSubmit, onError)}
-                            endIcon={<SaveIcon />}
-                            disabled={disabled}
+                        <Box
                             sx={{
-                                color: window.location.pathname.includes("20hr")
-                                    ? "white"
-                                    : "black",
+                                flexGrow: 1,
+                                display: {
+                                    xs: "flex",
+                                    md: "none",
+                                },
                             }}
-                        >
-                            Registrarse
-                        </Button>
+                        />
+                        <Stack direction="row" alignItems="center" spacing={0}>
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={0}
+                                sx={{
+                                    mr: 1,
+                                }}
+                            >
+                                <DoubleArrowIcon color="primary" />
+                                <DoubleArrowIcon color="primary" />
+                            </Stack>
+                            <Button
+                                onClick={methods.handleSubmit(
+                                    onSubmit,
+                                    onError,
+                                )}
+                                variant="contained"
+                                color="success"
+                                size="large"
+                                endIcon={<SaveIcon />}
+                                sx={{
+                                    fontWeight: "bold",
+                                    px: 4,
+                                    boxShadow: 3,
+                                    "&:hover": {
+                                        boxShadow: 6,
+                                        transform: "scale(1.02)",
+                                        transition: "all 0.2s ease-in-out",
+                                    },
+                                    "&:disabled": {
+                                        backgroundColor:
+                                            "action.disabledBackground",
+                                    },
+                                }}
+                            >
+                                Registrarse
+                            </Button>
+                        </Stack>
                     </Fragment>
                 )}
             </DialogActions>
