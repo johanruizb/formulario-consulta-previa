@@ -16,8 +16,8 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { SWRConfig } from "swr";
 import App from "./App.jsx";
-import customTheme from "./theme/index.jsx";
 import { AlertProvider } from "./contexts/AlertContext.jsx";
+import customTheme from "./theme/index.jsx";
 
 const router = createBrowserRouter([
     {
@@ -46,7 +46,7 @@ createRoot(document.getElementById("root")).render(
                                             : Promise.reject({
                                                   status: res.status,
                                                   statusText: res.statusText,
-                                              }),
+                                              })
                                     ),
                             }}
                         >
@@ -58,5 +58,5 @@ createRoot(document.getElementById("root")).render(
                 </LocalizationProvider>
             </ThemeProvider>
         </Profiler>
-    </StrictMode>,
+    </StrictMode>
 );

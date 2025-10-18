@@ -99,7 +99,7 @@ function useFieldForm(methods, isEditing = false) {
                           disabled:
                               isEditing &&
                               !EDITABLE_FIELDS_WHEN_REGISTERED.includes(
-                                  "firstName",
+                                  "firstName"
                               ),
                       },
                   },
@@ -316,30 +316,42 @@ function useFieldForm(methods, isEditing = false) {
                           options: [
                               {
                                   value: 1,
-                                  label: "Femenino",
+                                  label: "Mujer cisg\u00e9nero",
                               },
                               {
                                   value: 2,
-                                  label: "Masculino",
+                                  label: "Hombre cisg\u00e9nero",
                               },
                               {
-                                  value: 3,
-                                  label: "Transgénero",
+                                  value: 6,
+                                  label: "Mujer transg\u00e9nero",
+                              },
+                              {
+                                  value: 7,
+                                  label: "Hombre transg\u00e9nero",
                               },
                               {
                                   value: 4,
-                                  label: "No binario",
+                                  label: "Persona no binaria",
+                              },
+                              {
+                                  value: 8,
+                                  label: "Persona g\u00e9nero fluido",
+                              },
+                              {
+                                  value: 9,
+                                  label: "Ninguno",
                               },
                               {
                                   value: 5,
-                                  label: "Prefiero no decirlo",
+                                  label: "Prefiero no responder",
                               },
                               {
                                   value: 0,
-                                  label: "Otro (especifique)",
+                                  label: "Otra",
                               },
                           ],
-                          label: "Género",
+                          label: "¿Con cuál de las siguientes identidades de género te identificas?",
                           required: true,
                       },
                   },
@@ -593,28 +605,28 @@ function useFieldForm(methods, isEditing = false) {
                           url: `${URI.FORM}/countries/CO/states/$1/cities`,
                       },
                   },
-                  {
-                      Component: BasicTextField,
-                      controller: {
-                          name: "neighborhood",
-                          defaultValue: "",
-                          rules: {
-                              required: {
-                                  value: true,
-                                  message: "Este campo no puede estar vacio",
-                              },
-                              maxLength: {
-                                  value: 300,
-                                  message:
-                                      "El barrio no puede tener más de 300 caracteres",
-                              },
-                          },
-                      },
-                      field: {
-                          label: "Barrio de residencia",
-                          required: true,
-                      },
-                  },
+                  //   {
+                  //       Component: BasicTextField,
+                  //       controller: {
+                  //           name: "neighborhood",
+                  //           defaultValue: "",
+                  //           rules: {
+                  //               required: {
+                  //                   value: true,
+                  //                   message: "Este campo no puede estar vacio",
+                  //               },
+                  //               maxLength: {
+                  //                   value: 300,
+                  //                   message:
+                  //                       "El barrio no puede tener más de 300 caracteres",
+                  //               },
+                  //           },
+                  //       },
+                  //       field: {
+                  //           label: "Barrio de residencia",
+                  //           required: true,
+                  //       },
+                  //   },
                   {
                       Component: BasicSelect,
                       controller: {
@@ -658,26 +670,23 @@ function useFieldForm(methods, isEditing = false) {
                           options: [
                               {
                                   value: "nula",
-                                  label: "Sin conexión",
+                                  label: "No cuento con acceso a internet",
                               },
                               {
                                   value: "baja",
-                                  label: "Solo con wifi público",
+                                  label: "Accedo a internet mediante puntos públicos o compartidos",
                               },
                               {
-                                  value: "media",
-                                  label: "Por intervalos de tiempo con dificultad",
+                                  value: "hogar",
+                                  label: "Tengo internet privado en el hogar",
                               },
                               {
-                                  value: "plena",
-                                  label: "Todo el día sin dificultad",
+                                  value: "movil",
+                                  label: "Uso internet móvil a través del plan de datos del celular",
                               },
-                              {
-                                  value: "otra",
-                                  label: "Otra (especificar)",
-                              },
+                            //   { value: "otra", label: "Otra (especificar)" },
                           ],
-                          label: "Acceso a conexión de internet",
+                          label: "¿De qué manera accede habitualmente a internet?",
                           required: true,
                       },
                   },
@@ -707,6 +716,72 @@ function useFieldForm(methods, isEditing = false) {
                           onChange: toUpperCase,
                       },
                       gridless: true,
+                  },
+                  {
+                      Component: BasicSelect,
+                      controller: {
+                          name: "nivel_educativo",
+                          rules: {
+                              required: {
+                                  value: true,
+                                  message: "Este campo no puede estar vacio",
+                              },
+                          },
+                      },
+                      field: {
+                          label: "Nivel educativo",
+                          required: true,
+                          options: [
+                              {
+                                  value: 2,
+                                  label: "Ninguno / Sin escolaridad",
+                              },
+                              {
+                                  value: 3,
+                                  label: "Preescolar",
+                              },
+                              {
+                                  value: 4,
+                                  label: "Primaria incompleta",
+                              },
+                              {
+                                  value: 5,
+                                  label: "Primaria completa",
+                              },
+                              {
+                                  value: 6,
+                                  label: "Secundaria incompleta",
+                              },
+                              {
+                                  value: 7,
+                                  label: "Secundaria completa (Bachiller)",
+                              },
+                              {
+                                  value: 8,
+                                  label: "T\u00e9cnico profesional",
+                              },
+                              {
+                                  value: 9,
+                                  label: "Tecn\u00f3logo",
+                              },
+                              {
+                                  value: 10,
+                                  label: "Profesional universitario",
+                              },
+                              {
+                                  value: 11,
+                                  label: "Especializaci\u00f3n",
+                              },
+                              {
+                                  value: 12,
+                                  label: "Maestr\u00eda",
+                              },
+                              {
+                                  value: 13,
+                                  label: "Doctorado",
+                              },
+                          ],
+                      },
                   },
                   {
                       Component: CheckboxField,
