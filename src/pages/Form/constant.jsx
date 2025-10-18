@@ -99,7 +99,7 @@ function useFieldForm(methods, isEditing = false) {
                           disabled:
                               isEditing &&
                               !EDITABLE_FIELDS_WHEN_REGISTERED.includes(
-                                  "firstName"
+                                  "firstName",
                               ),
                       },
                   },

@@ -34,11 +34,11 @@ const citiesByState: Record<string, { id: number; name: string }[]> = {
 
 const frontDocumentPath = path.resolve(
     __dirname,
-    "../../src/assets/frente.png"
+    "../../src/assets/frente.png",
 );
 const backDocumentPath = path.resolve(
     __dirname,
-    "../../src/assets/reverso.png"
+    "../../src/assets/reverso.png",
 );
 
 const DOCUMENT_NUMBER = "1234567890";
@@ -53,15 +53,15 @@ async function fulfillJson(route: Route, payload: unknown, status = 200) {
 
 test.beforeEach(async ({ page }: { page: Page }) => {
     await page.route("**/api/v1/inscripcion/estado", (route: Route) =>
-        fulfillJson(route, { activo: true })
+        fulfillJson(route, { activo: true }),
     );
 
     await page.route("**/api/v1/inscripcion/cupos/**", (route: Route) =>
-        fulfillJson(route, { curso_disponible: true, cupos: 25 })
+        fulfillJson(route, { curso_disponible: true, cupos: 25 }),
     );
 
     await page.route("**/api/ubicacion/countries", (route: Route) =>
-        fulfillJson(route, countries)
+        fulfillJson(route, countries),
     );
 
     await page.route(
@@ -72,10 +72,10 @@ test.beforeEach(async ({ page }: { page: Page }) => {
             const stateId = parts.at(-2);
             const payload =
                 stateId && stateId !== "undefined"
-                    ? citiesByState[stateId] ?? []
+                    ? (citiesByState[stateId] ?? [])
                     : [];
             await fulfillJson(route, payload);
-        }
+        },
     );
 
     await page.route(
@@ -92,7 +92,7 @@ test.beforeEach(async ({ page }: { page: Page }) => {
                     ? statesByCountry[countryCode]
                     : [];
             await fulfillJson(route, payload ?? []);
-        }
+        },
     );
 
     await page.route(
@@ -123,21 +123,21 @@ test.beforeEach(async ({ page }: { page: Page }) => {
             } else {
                 await route.fulfill({ status: 204, body: "" });
             }
-        }
+        },
     );
 
     await page.route(
         "**/api/usuarios/search/inscritos",
         async (route: Route) => {
             await fulfillJson(route, { message: "No encontrado" }, 404);
-        }
+        },
     );
 });
 
 async function selectHelper(
     fieldName: string,
     optionLabel: string,
-    page: Page
+    page: Page,
 ) {
     await page.locator(`#mui-component-select-${fieldName}`).click();
     await page.getByRole("option", { name: optionLabel }).click();
@@ -157,7 +157,7 @@ test("permite completar y enviar el formulario de inscripción", async ({
             submittedBody = await route.request().postDataBuffer();
             submittedHeaders = route.request().headers();
             await fulfillJson(route, { message: "Registro exitoso" });
-        }
+        },
     );
 
     await page.goto("/");
@@ -168,7 +168,7 @@ test("permite completar y enviar el formulario de inscripción", async ({
     await page.getByRole("button", { name: "Continuar inscripción" }).click();
 
     await expect(
-        page.locator("#mui-component-select-cursos_inscritos")
+        page.locator("#mui-component-select-cursos_inscritos"),
     ).toBeVisible();
 
     await selectHelper("cursos_inscritos", "Comunidades", page);
@@ -186,10 +186,10 @@ test("permite completar y enviar el formulario de inscripción", async ({
     await fileInputs.nth(0).setInputFiles(frontDocumentPath);
     await fileInputs.nth(1).setInputFiles(backDocumentPath);
     await expect(page.getByLabel("Frente del documento")).toHaveValue(
-        "frente.png"
+        "frente.png",
     );
     await expect(page.getByLabel("Reverso del documento")).toHaveValue(
-        "reverso.png"
+        "reverso.png",
     );
 
     await page.getByLabel("Fecha de nacimiento").fill("10/05/2000");
@@ -224,7 +224,7 @@ test("permite completar y enviar el formulario de inscripción", async ({
         .check({ force: true });
 
     await expect(
-        page.getByRole("button", { name: "Registrarse" })
+        page.getByRole("button", { name: "Registrarse" }),
     ).toBeEnabled();
     await page.getByRole("button", { name: "Registrarse" }).click();
 

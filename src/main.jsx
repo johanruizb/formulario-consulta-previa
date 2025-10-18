@@ -46,7 +46,7 @@ createRoot(document.getElementById("root")).render(
                                             : Promise.reject({
                                                   status: res.status,
                                                   statusText: res.statusText,
-                                              })
+                                              }),
                                     ),
                             }}
                         >
@@ -58,5 +58,5 @@ createRoot(document.getElementById("root")).render(
                 </LocalizationProvider>
             </ThemeProvider>
         </Profiler>
-    </StrictMode>
+    </StrictMode>,
 );
