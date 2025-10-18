@@ -473,8 +473,12 @@ function useFieldForm(methods, isEditing = false) {
                                             label: "Empresario",
                                         },
                                         {
-                                            value: 9,
-                                            label: "Educación",
+                                            value: 17,
+                                            label: "Educación pública",
+                                        },
+                                        {
+                                            value: 18,
+                                            label: "Educación privada",
                                         },
                                     ]
                                   : [
@@ -684,7 +688,7 @@ function useFieldForm(methods, isEditing = false) {
                                   value: "movil",
                                   label: "Uso internet móvil a través del plan de datos del celular",
                               },
-                            //   { value: "otra", label: "Otra (especificar)" },
+                              //   { value: "otra", label: "Otra (especificar)" },
                           ],
                           label: "¿De qué manera accede habitualmente a internet?",
                           required: true,
