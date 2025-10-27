@@ -24,11 +24,7 @@ import {
     LoadingState,
     MessageState,
 } from "../../components/ui";
-import {
-    getBanner,
-    getButtonsFooter,
-    getFooter,
-} from "../../config/courseAssets";
+import { getBanner, getFooter } from "../../config/courseAssets";
 import useAlert from "../../hooks/alert/useAlertNew";
 import useSmall from "../../hooks/breakpoint/useSmall";
 import { useCourseSlots } from "../../hooks/useAPI";
@@ -286,11 +282,11 @@ function FullScreenDialog() {
                 <DialogActions
                     sx={{
                         justifyContent: "space-between",
-                        backgroundImage: `url(${getButtonsFooter(
-                            "diplomado",
-                            small,
-                        )})`,
-                        backgroundSize: "cover",
+                        // backgroundImage: `url(${getButtonsFooter(
+                        //     "diplomado",
+                        //     small,
+                        // )})`,
+                        // backgroundSize: "cover",
                     }}
                 >
                     {sending ? (

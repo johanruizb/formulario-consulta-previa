@@ -16,11 +16,7 @@ import PropTypes from "prop-types";
 import { Fragment, useCallback, useRef, useState } from "react";
 import { FormProvider, useFormContext } from "react-hook-form";
 import { FORM_FIELDS_LABELS } from "../../components/constant";
-import {
-    getBanner,
-    getButtonsFooter,
-    getFooter,
-} from "../../config/courseAssets";
+import { getBanner, getFooter } from "../../config/courseAssets";
 import { useAlert } from "../../hooks/alert/useAlertNew";
 import useSmall from "../../hooks/breakpoint/useSmall";
 import INSCRIPCION from "../../hooks/request/inscripcion";
@@ -302,8 +298,8 @@ function Validator({ state }) {
                     alt="Banner"
                     sx={{
                         width: "100%",
-                        position: { xs: "absolute", md: "relative" },
-                        bottom: 0,
+                        // position: { xs: "absolute", md: "relative" },
+                        // bottom: 0,
                     }}
                 />
             </DialogContent>
@@ -311,11 +307,11 @@ function Validator({ state }) {
                 <DialogActions
                     sx={{
                         justifyContent: "space-between",
-                        backgroundImage: `url(${getButtonsFooter(
-                            "diplomado",
-                            small,
-                        )})`,
-                        backgroundSize: "cover",
+                        // backgroundImage: `url(${getButtonsFooter(
+                        //     "diplomado",
+                        //     small,
+                        // )})`,
+                        // backgroundSize: "cover",
                     }}
                 >
                     {loading ? (

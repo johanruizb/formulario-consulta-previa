@@ -30,6 +30,7 @@ const EDITABLE_FIELDS_WHEN_REGISTERED = [
     "otra_conectividad",
     "processingOfPersonalData",
     "cursos_inscritos",
+    "nivel_educativo",
 ];
 
 function useFieldForm(methods, isEditing = false) {
@@ -316,11 +317,11 @@ function useFieldForm(methods, isEditing = false) {
                           options: [
                               {
                                   value: 1,
-                                  label: "Mujer cisg\u00e9nero",
+                                  label: "Mujer",
                               },
                               {
                                   value: 2,
-                                  label: "Hombre cisg\u00e9nero",
+                                  label: "Hombre",
                               },
                               {
                                   value: 6,
@@ -355,28 +356,28 @@ function useFieldForm(methods, isEditing = false) {
                           required: true,
                       },
                   },
-                  {
-                      Component: OtroCampo,
-                      OtherComponent: BasicTextField,
-                      controller: {
-                          name: "otherGender",
-                          defaultValue: "",
-                          rules: {
-                              required: {
-                                  value: true,
-                                  message: "Este campo no puede estar vacio",
-                              },
-                          },
-                          dependencies: "gender",
-                          otherKey: 0,
-                      },
-                      field: {
-                          label: "Otro género (especificar)",
-                          required: true,
-                          onChange: toUpperCase,
-                      },
-                      gridless: true,
-                  },
+                  //   {
+                  //       Component: OtroCampo,
+                  //       OtherComponent: BasicTextField,
+                  //       controller: {
+                  //           name: "otherGender",
+                  //           defaultValue: "",
+                  //           rules: {
+                  //               required: {
+                  //                   value: true,
+                  //                   message: "Este campo no puede estar vacio",
+                  //               },
+                  //           },
+                  //           dependencies: "gender",
+                  //           otherKey: 0,
+                  //       },
+                  //       field: {
+                  //           label: "Otro género (especificar)",
+                  //           required: true,
+                  //           onChange: toUpperCase,
+                  //       },
+                  //       gridless: true,
+                  //   },
                   {
                       Component: BasicSelect,
                       controller: {
