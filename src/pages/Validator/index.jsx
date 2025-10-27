@@ -336,7 +336,7 @@ function Validator({ state }) {
                                 variant="text"
                                 startIcon={<DeleteForeverIcon />}
                                 sx={{
-                                    color: "black",
+                                    // color: "black",
                                     display: {
                                         xs: "none",
                                         md: "flex",
