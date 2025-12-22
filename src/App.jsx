@@ -9,6 +9,7 @@ import "./App.css";
 import FormularioDiplomado from "./pages/Form";
 
 const ErrorNotFound = lazy(() => import("./pages/Error/404"));
+const ErrorBoundaryTest = lazy(() => import("./components/ErrorBoundaryTest"));
 
 function App() {
     const { isActive, isLoading } = useEnrollmentStatus();
@@ -34,6 +35,22 @@ function App() {
                         element={
                             <Suspense fallback={<LoadingBackdrop />}>
                                 <FormularioDiplomado />
+                            </Suspense>
+                        }
+                    />
+                    {/* <Route
+                        path="/test-error-boundary"
+                        element={
+                            <Suspense fallback={<LoadingBackdrop />}>
+                                <ErrorBoundaryTest />
+                            </Suspense>
+                        }
+                    /> */}
+                    <Route
+                        path="*"
+                        element={
+                            <Suspense fallback={<LoadingBackdrop />}>
+                                <ErrorNotFound />
                             </Suspense>
                         }
                     />
