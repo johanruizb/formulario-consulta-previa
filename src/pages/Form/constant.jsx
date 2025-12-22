@@ -16,6 +16,16 @@ import isProduction from "../../utils/isProduction";
 
 // Campos editables cuando el usuario está registrado
 const EDITABLE_FIELDS_WHEN_REGISTERED = [
+    // Desbloqueados temporalmente
+    "countryExpedition",
+    "birthdate",
+    "countryBirth",
+    "stateBirth",
+    "cityBirth",
+    "frontDocument",
+    "backDocument",
+    "fotos_doc",
+    //
     "otherGender",
     "ethnicity",
     "typeEntity",
@@ -220,6 +230,11 @@ function useFieldForm(methods, isEditing = false) {
                   },
                   {
                       Component: DocumentImage,
+                      // field.controller?.name
+                      controller: {
+                          name: "fotos_doc",
+                      },
+                      //   gridless: true,
                       size: 12,
                   },
                   {
@@ -235,7 +250,7 @@ function useFieldForm(methods, isEditing = false) {
                           },
                       },
                       field: {
-                          label: "Fecha de nacimiento",
+                          label: "Fecha de nacimiento *",
                           required: true,
                       },
                   },
@@ -573,7 +588,6 @@ function useFieldForm(methods, isEditing = false) {
                       Component: AsyncSelect,
                       controller: {
                           name: "stateLocation",
-                          defaultValue: "",
                           rules: {
                               required: {
                                   value: true,
@@ -593,7 +607,6 @@ function useFieldForm(methods, isEditing = false) {
                       Component: CustomAsyncSelect,
                       controller: {
                           name: "cityLocation",
-                          defaultValue: "",
                           rules: {
                               required: {
                                   value: true,
@@ -816,15 +829,18 @@ function useFieldForm(methods, isEditing = false) {
         },
     ];
 
+    let fields = [...allFields];
+
     // Filtrar DocumentImage si está en modo edición
-    let fields = isEditing
-        ? allFields.filter((field) => field.Component !== DocumentImage)
-        : allFields;
+    // let fields = isEditing
+    //     ? allFields.filter((field) => field.Component !== DocumentImage)
+    //     : allFields;
 
     // Aplicar disabled a los campos que no son editables cuando está en modo edición
     if (isEditing) {
-        fields = fields.map((field) => {
+        fields = allFields.map((field) => {
             const fieldName = field.controller?.name;
+            console.log("fieldName", fieldName);
             if (
                 fieldName &&
                 !EDITABLE_FIELDS_WHEN_REGISTERED.includes(fieldName)
