@@ -1,5 +1,3 @@
-import isProduction from "../utils/isProduction";
-
 const COLOMBIA = {
     id: 48,
     name: "Colombia",
@@ -48,16 +46,20 @@ const COLOMBIA = {
     emojiU: "U+1F1E8 U+1F1F4",
 };
 
+const BASE_URL_ENV = {
+    PRODUCTION: "https://panel.consultaprevia.net",
+    DEVELOPMENT: "http://localhost:21411",
+    TESTING: "https://panel.johanruizb.xyz",
+};
+
+const BASE_URL =
+    BASE_URL_ENV[import.meta.env.MODE.toUpperCase()] ||
+    "http://localhost:21411";
+
 const URI = {
-    FORM: isProduction
-        ? "https://panel.consultaprevia.net/api/ubicacion"
-        : `http://${window.location.hostname}:21411/api/ubicacion`,
-    API: isProduction
-        ? "https://panel.consultaprevia.net/api/v1"
-        : `http://${window.location.hostname}:21411/api/v1`,
-    SERVER: isProduction
-        ? "https://panel.consultaprevia.net"
-        : `http://${window.location.hostname}:21411`,
+    FORM: `${BASE_URL}/api/ubicacion`,
+    API: `${BASE_URL}/api/v1`,
+    SERVER: `${BASE_URL}`,
 };
 
 const FORM_FIELDS_LABELS = {
