@@ -12,6 +12,7 @@ import Grid from "@mui/material/Grid2";
 import LinearProgress from "@mui/material/LinearProgress";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import * as Sentry from "@sentry/react";
 import PropTypes from "prop-types";
 import { Fragment, useCallback, useRef, useState } from "react";
 import { FormProvider, useFormContext } from "react-hook-form";
@@ -22,7 +23,13 @@ import useSmall from "../../hooks/breakpoint/useSmall";
 import INSCRIPCION from "../../hooks/request/inscripcion";
 import SEARCH from "../../hooks/request/search";
 import { formDataFromObject } from "../../utils/form";
+import { handleSubmitError, safeParseResponse } from "../../utils/http";
 import isProduction from "../../utils/isProduction";
+import {
+    calculateFormDataSize,
+    formatBytes,
+    serializeFormDataForSentry,
+} from "../../utils/sentry";
 import useFieldForm from "../Form/constant";
 import { scrollIntoError } from "../Form/functions";
 import ValidatorFields from "./constants";
@@ -50,19 +57,71 @@ function Validator({ state }) {
         async (data) => {
             try {
                 setLoading(true);
-                const response = await SEARCH.verify(data);
-                const responseData = await response.json();
 
-                switch (response.status) {
+                // Breadcrumb: inicio de búsqueda
+                Sentry.addBreadcrumb({
+                    category: "validator",
+                    message: "Iniciando búsqueda de usuario",
+                    level: "info",
+                    data: {
+                        documentNumber:
+                            data.documentNumber?.substring(0, 4) + "***",
+                    },
+                });
+
+                const response = await SEARCH.verify(data);
+                // Parsear respuesta de forma segura ANTES del switch
+                const parsed = await safeParseResponse(response);
+
+                switch (parsed.status) {
                     case 200:
+                        // Usuario encontrado - validar que tenga datos
+                        if (!parsed.data || !parsed.data.persona) {
+                            Sentry.captureException(
+                                new Error(
+                                    "Respuesta 200 en búsqueda pero sin datos de persona",
+                                ),
+                                {
+                                    contexts: {
+                                        response: {
+                                            status: parsed.status,
+                                            isEmpty: parsed.isEmpty,
+                                            hasData: !!parsed.data,
+                                        },
+                                    },
+                                    tags: {
+                                        form_type: "validator",
+                                        error_type: "search_empty_data",
+                                    },
+                                },
+                            );
+
+                            showAlert({
+                                message:
+                                    "Error al obtener datos del usuario. Por favor, intenta nuevamente.",
+                                error: true,
+                            });
+                            break;
+                        }
+
                         // Usuario encontrado - llenar formulario con datos
+                        Sentry.addBreadcrumb({
+                            category: "validator",
+                            message: "Usuario encontrado en el sistema",
+                            level: "info",
+                        });
                         setMessage(null);
                         setRegistered(true);
-                        reset(responseData.persona);
+                        reset(parsed.data.persona);
                         break;
 
                     case 404:
                         // Usuario no encontrado - limpiar y permitir registro
+                        Sentry.addBreadcrumb({
+                            category: "validator",
+                            message: "Usuario no encontrado - nuevo registro",
+                            level: "info",
+                        });
                         setRegistered(false);
                         reset({
                             documentNumber: data.documentNumber,
@@ -71,20 +130,97 @@ function Validator({ state }) {
 
                     default:
                         // Ya inscrito u otros casos
+                        Sentry.addBreadcrumb({
+                            category: "validator",
+                            message: `Error en búsqueda: ${parsed.status}`,
+                            level: "warning",
+                            data: {
+                                status: parsed.status,
+                                message: parsed.data?.message,
+                                hasJSON: !!parsed.data,
+                            },
+                        });
+
+                        // Capturar en Sentry si no hay JSON válido
+                        if (!parsed.data && parsed.rawBody) {
+                            Sentry.captureException(
+                                new Error(
+                                    `Error de búsqueda sin JSON: ${parsed.status}`,
+                                ),
+                                {
+                                    contexts: {
+                                        search: {
+                                            documentNumber:
+                                                data.documentNumber?.substring(
+                                                    0,
+                                                    4,
+                                                ) + "***",
+                                            status: parsed.status,
+                                            statusText: parsed.statusText,
+                                        },
+                                        rawResponse: {
+                                            preview: parsed.rawBody.substring(
+                                                0,
+                                                500,
+                                            ),
+                                            truncated:
+                                                parsed.rawBody.length > 500,
+                                        },
+                                    },
+                                    tags: {
+                                        form_type: "validator",
+                                        error_type: "search_no_json",
+                                        status_code: parsed.status.toString(),
+                                    },
+                                },
+                            );
+                        }
+
                         showAlert({
                             title: "Ya te has inscrito!",
-                            message: responseData.message,
+                            message:
+                                parsed.data?.message ??
+                                "Error al buscar usuario en el sistema",
                             error: true,
                             refreshOnAccept: true,
                         });
                         break;
                 }
             } catch (error) {
-                console.error("Error en búsqueda:", error);
+                // Capturar errores de red en búsqueda
+                const isNetworkError = error instanceof TypeError;
+                const isTimeout =
+                    error.name === "AbortError" ||
+                    error.name === "TimeoutError";
+
+                Sentry.captureException(error, {
+                    contexts: {
+                        search: {
+                            documentNumber:
+                                data.documentNumber?.substring(0, 4) + "***",
+                            errorType: isTimeout
+                                ? "timeout"
+                                : isNetworkError
+                                  ? "network"
+                                  : "unknown",
+                        },
+                    },
+                    tags: {
+                        form_type: "validator",
+                        error_type: isTimeout
+                            ? "search_timeout_error"
+                            : isNetworkError
+                              ? "search_network_error"
+                              : "search_error",
+                    },
+                });
+
                 showAlert({
-                    title: "Error de conexión",
-                    message:
-                        "No se pudo verificar el documento. Intenta nuevamente.",
+                    message: isTimeout
+                        ? "La búsqueda tardó demasiado tiempo. Por favor, intenta nuevamente."
+                        : isNetworkError
+                          ? "Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente."
+                          : "Error al buscar usuario. Por favor, intenta nuevamente.",
                     error: true,
                 });
             } finally {
@@ -103,6 +239,18 @@ function Validator({ state }) {
             try {
                 setLoading(true);
 
+                // Breadcrumb: inicio de registro
+                Sentry.addBreadcrumb({
+                    category: "validator",
+                    message: "Iniciando registro de usuario existente",
+                    level: "info",
+                    data: {
+                        formSize: formatBytes(calculateFormDataSize(data)),
+                        hasDocuments:
+                            !!data.frontDocument && !!data.backDocument,
+                    },
+                });
+
                 const formData = formDataFromObject({
                     ...data,
                     processingOfPersonalData: true,
@@ -110,26 +258,126 @@ function Validator({ state }) {
                 });
 
                 const response = await INSCRIPCION.registrar(formData);
-                const result = await response.json();
 
+                // Verificar estado de la respuesta ANTES de parsear
                 if (response.ok) {
+                    // Parsear respuesta exitosa
+                    const parsed = await safeParseResponse(response);
+
+                    // Validar que la respuesta no esté vacía
+                    if (parsed.isEmpty || !parsed.data) {
+                        Sentry.addBreadcrumb({
+                            category: "validator",
+                            message: "Respuesta exitosa pero vacía",
+                            level: "warning",
+                            data: {
+                                isEmpty: parsed.isEmpty,
+                                hasData: !!parsed.data,
+                            },
+                        });
+
+                        Sentry.captureException(
+                            new Error("Respuesta 200 OK pero contenido vacío"),
+                            {
+                                contexts: {
+                                    response: {
+                                        status: parsed.status,
+                                        contentType: parsed.contentType,
+                                        isEmpty: parsed.isEmpty,
+                                    },
+                                },
+                                tags: {
+                                    form_type: "validator",
+                                    error_type: "empty_success_response",
+                                },
+                            },
+                        );
+
+                        showAlert({
+                            message:
+                                "El servidor no respondió correctamente. Por favor, intenta nuevamente.",
+                            error: true,
+                        });
+                        return;
+                    }
+
+                    // Breadcrumb: éxito
+                    Sentry.addBreadcrumb({
+                        category: "validator",
+                        message: "Registro completado exitosamente",
+                        level: "info",
+                    });
+
                     showAlert({
-                        message: result.message,
+                        message:
+                            parsed.data?.message ??
+                            "Registro completado exitosamente",
                         refreshOnAccept: true,
                     });
                     if (isProduction) onCancel();
                 } else {
+                    // Manejar error HTTP con función unificada
+                    const errorMessage = await handleSubmitError(
+                        response,
+                        data,
+                        {
+                            category: "validator",
+                            formType: "validator",
+                            alreadyRegistered: true,
+                        },
+                    );
+
                     showAlert({
-                        message:
-                            result.message ??
-                            `Error al registrarse (${response.status} - ${response.statusText})`,
+                        message: errorMessage,
                         error: true,
                     });
                 }
             } catch (error) {
-                console.error("Error en registro:", error);
+                // Capturar errores de red o excepciones inesperadas
+                const isNetworkError = error instanceof TypeError;
+                const isTimeout =
+                    error.name === "AbortError" ||
+                    error.name === "TimeoutError";
+                const errorType = isTimeout
+                    ? "timeout_error"
+                    : isNetworkError
+                      ? "network_error"
+                      : "unknown_error";
+
+                Sentry.addBreadcrumb({
+                    category: "validator",
+                    message: isTimeout
+                        ? "Timeout: La solicitud tardó demasiado"
+                        : isNetworkError
+                          ? "Error de red (sin conexión)"
+                          : "Excepción no controlada",
+                    level: "error",
+                    data: {
+                        errorName: error.name,
+                        errorMessage: error.message,
+                    },
+                });
+
+                Sentry.captureException(error, {
+                    contexts: {
+                        formData: {
+                            ...serializeFormDataForSentry(data),
+                            totalSize: formatBytes(calculateFormDataSize(data)),
+                            alreadyRegistered: true,
+                        },
+                    },
+                    tags: {
+                        form_type: "validator",
+                        error_type: errorType,
+                    },
+                });
+
                 showAlert({
-                    message: "Error de conexión. Intenta nuevamente.",
+                    message: isTimeout
+                        ? "La solicitud tardó demasiado tiempo. Por favor, verifica tu conexión e intenta nuevamente."
+                        : isNetworkError
+                          ? "Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente."
+                          : "Ha ocurrido un error inesperado. Por favor, intenta nuevamente.",
                     error: true,
                 });
             } finally {
@@ -169,6 +417,7 @@ function Validator({ state }) {
             >
                 <Box
                     component="img"
+                    // fetchPriority="high"
                     src={Banner}
                     alt="Banner"
                     sx={{
@@ -296,6 +545,7 @@ function Validator({ state }) {
                     component="img"
                     src={Footer}
                     alt="Banner"
+                    // fetchPriority="high"
                     sx={{
                         width: "100%",
                         // position: { xs: "absolute", md: "relative" },

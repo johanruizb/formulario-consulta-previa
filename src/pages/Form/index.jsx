@@ -13,6 +13,7 @@ import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { useRenderCount } from "@uidotdev/usehooks";
+import * as Sentry from "@sentry/react";
 import dayjs from "dayjs";
 import { Fragment, lazy, Suspense, useCallback, useRef, useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
@@ -30,7 +31,13 @@ import useSmall from "../../hooks/breakpoint/useSmall";
 import { useCourseSlots } from "../../hooks/useAPI";
 import enrollmentService from "../../services/enrollmentService";
 import { formDataFromObject } from "../../utils/form";
+import { handleSubmitError, safeParseResponse } from "../../utils/http";
 import { isDevelopment } from "../../utils/isProduction";
+import {
+    calculateFormDataSize,
+    formatBytes,
+    serializeFormDataForSentry,
+} from "../../utils/sentry";
 import getTimeout from "../../utils/timeout";
 import { default as useFieldForm } from "./constant";
 import { scrollIntoError } from "./functions";
@@ -121,6 +128,18 @@ function FullScreenDialog() {
                 setSending(true);
                 const start = dayjs();
 
+                // Breadcrumb: inicio de envío
+                Sentry.addBreadcrumb({
+                    category: "form",
+                    message: "Iniciando envío de formulario de registro",
+                    level: "info",
+                    data: {
+                        formSize: formatBytes(calculateFormDataSize(data)),
+                        hasDocuments:
+                            !!data.frontDocument && !!data.backDocument,
+                    },
+                });
+
                 const formData = formDataFromObject({ ...data });
 
                 // Ejecutar request
@@ -134,25 +153,123 @@ function FullScreenDialog() {
                     );
                 }
 
-                const result = await response.json();
-
+                // Verificar estado de la respuesta ANTES de parsear
                 if (response.ok) {
+                    // Parsear respuesta exitosa
+                    const parsed = await safeParseResponse(response);
+
+                    // Validar que la respuesta no esté vacía
+                    if (parsed.isEmpty || !parsed.data) {
+                        Sentry.addBreadcrumb({
+                            category: "form",
+                            message: "Respuesta exitosa pero vacía",
+                            level: "warning",
+                            data: {
+                                isEmpty: parsed.isEmpty,
+                                hasData: !!parsed.data,
+                            },
+                        });
+
+                        Sentry.captureException(
+                            new Error("Respuesta 200 OK pero contenido vacío"),
+                            {
+                                contexts: {
+                                    response: {
+                                        status: parsed.status,
+                                        contentType: parsed.contentType,
+                                        isEmpty: parsed.isEmpty,
+                                    },
+                                },
+                                tags: {
+                                    form_type: "diplomado",
+                                    error_type: "empty_success_response",
+                                },
+                            },
+                        );
+
+                        showAlert({
+                            message:
+                                "El servidor no respondió correctamente. Por favor, intenta nuevamente.",
+                            error: true,
+                        });
+                        return;
+                    }
+
+                    // Breadcrumb: éxito
+                    Sentry.addBreadcrumb({
+                        category: "form",
+                        message: "Registro completado exitosamente",
+                        level: "info",
+                    });
+
                     showAlert({
-                        message: result.message,
+                        message:
+                            parsed.data?.message ??
+                            "Registro completado exitosamente",
                         refreshOnAccept: true,
                     });
                 } else {
+                    // Manejar error HTTP con función unificada
+                    const errorMessage = await handleSubmitError(
+                        response,
+                        data,
+                        {
+                            category: "form",
+                            formType: "diplomado",
+                            alreadyRegistered: false,
+                        },
+                    );
+
                     showAlert({
-                        message:
-                            result.message ??
-                            `Error al registrarse (${response.status} - ${response.statusText})`,
+                        message: errorMessage,
                         error: true,
                     });
                 }
             } catch (error) {
-                console.error("Error en registro:", error);
+                // Capturar errores de red o excepciones inesperadas
+                const isNetworkError = error instanceof TypeError;
+                const isTimeout =
+                    error.name === "AbortError" ||
+                    error.name === "TimeoutError";
+                const errorType = isTimeout
+                    ? "timeout_error"
+                    : isNetworkError
+                      ? "network_error"
+                      : "unknown_error";
+
+                Sentry.addBreadcrumb({
+                    category: "form",
+                    message: isTimeout
+                        ? "Timeout: La solicitud tardó demasiado"
+                        : isNetworkError
+                          ? "Error de red (sin conexión)"
+                          : "Excepción no controlada",
+                    level: "error",
+                    data: {
+                        errorName: error.name,
+                        errorMessage: error.message,
+                    },
+                });
+
+                Sentry.captureException(error, {
+                    contexts: {
+                        formData: {
+                            ...serializeFormDataForSentry(data),
+                            totalSize: formatBytes(calculateFormDataSize(data)),
+                        },
+                    },
+                    tags: {
+                        form_type: "diplomado",
+                        error_type: errorType,
+                    },
+                });
+
                 showAlert({
-                    message: "Error de conexión. Intenta nuevamente.",
+                    message: isTimeout
+                        ? "La solicitud tardó demasiado tiempo. Por favor, verifica tu conexión e intenta nuevamente."
+                        : isNetworkError
+                          ? "Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente."
+                          : "Ha ocurrido un error inesperado. Por favor, intenta nuevamente.",
                     error: true,
                 });
             } finally {
@@ -213,6 +330,7 @@ function FullScreenDialog() {
                 >
                     <Box
                         component="img"
+                        // fetchPriority="high"
                         src={Banner}
                         alt="Banner"
                         sx={{
@@ -259,7 +377,6 @@ function FullScreenDialog() {
                                     })}
                                 </Grid>
                             </Box>
-                            {/* <Save /> */}
                         </FormProvider>
                         <Stack alignItems="center">
                             <Link href="https://www.freepik.es/vector-gratis/icono-perfil-plano-dibujado-mano_17539369.htm#fromView=search&page=1&position=29&uuid=fa87b794-1c3a-486d-b7a0-5aa2d7a92f9e">
@@ -269,6 +386,7 @@ function FullScreenDialog() {
                     </Box>
                     <Box
                         component="img"
+                        // fetchPriority="high"
                         src={Footer}
                         alt="Banner"
                         sx={{
