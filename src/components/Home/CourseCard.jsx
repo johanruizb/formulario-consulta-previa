@@ -54,6 +54,7 @@ export default function CourseCard({ slotProps, children }) {
             />
             <CardMedia
                 component="img"
+                // fetchPriority="high"
                 height="250"
                 image={getBanner("20hr", small)}
                 alt="Banner de consulta previa con informacion del curso"
