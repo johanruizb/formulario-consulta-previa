@@ -114,6 +114,7 @@ function ListaEspera() {
             >
                 <Box
                     component="img"
+                    // fetchPriority="high"
                     src={Banner}
                     alt="Banner"
                     sx={{
@@ -186,6 +187,7 @@ function ListaEspera() {
                 </Box>
                 <Box
                     component="img"
+                    // fetchPriority="high"
                     src={Footer}
                     alt="Banner"
                     sx={{
