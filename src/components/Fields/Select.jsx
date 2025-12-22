@@ -13,6 +13,7 @@ import PropTypes from "prop-types";
 
 import { Controller, useFormContext } from "react-hook-form";
 
+import useResetInvalidSelectValue from "../../hooks/useResetInvalidSelectValue";
 import { isDevelopment } from "../../utils/isProduction";
 
 const Counter = ({ renderCount, className }) => {
@@ -52,6 +53,13 @@ export default function BasicSelect({ slotProps }) {
         field: fieldProps,
         formRef,
     } = slotProps;
+
+    // Validar y resetear el valor si no está en las opciones disponibles
+    useResetInvalidSelectValue(
+        controllerProps.name,
+        fieldProps.options,
+        "value",
+    );
 
     return (
         <Controller

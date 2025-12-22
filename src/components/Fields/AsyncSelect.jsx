@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
+import useResetInvalidSelectValue from "../../hooks/useResetInvalidSelectValue";
 import { isDevelopment } from "../../utils/isProduction";
 import getTimeout from "../../utils/timeout";
 import SelectPlaceHolder from "./SelectPlaceHolder";
@@ -58,6 +59,14 @@ export default function AsyncSelect({ slotProps, fetchProps = {} }) {
 
     const fetchURL = fetchProps?.url ?? slotProps?.fetch?.url;
     const fetchOptions = fetchProps?.options ?? slotProps?.fetch?.options;
+
+    // Validar y resetear el valor si no está en las opciones disponibles
+    // Para AsyncSelect, las opciones pueden tener 'id' o 'iso2' como valor
+    useResetInvalidSelectValue(
+        controllerProps.name,
+        options,
+        options?.[0]?.iso2 ? "iso2" : "id",
+    );
 
     useEffect(() => {
         if (fetchURL) {

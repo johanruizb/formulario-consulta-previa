@@ -8,6 +8,7 @@ import { useRenderCount } from "@uidotdev/usehooks";
 import PropTypes from "prop-types";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import useSWRImmutable from "swr/immutable";
+import useResetInvalidSelectValue from "../../hooks/useResetInvalidSelectValue";
 import { format } from "../utils";
 import Counter from "./Counter";
 
@@ -84,6 +85,13 @@ function AsyncSelect({ slotProps }) {
         field: fieldProps,
         formRef,
     } = slotProps;
+
+    // Validar y resetear el valor si no está en las opciones disponibles
+    useResetInvalidSelectValue(
+        controllerProps.name,
+        fieldProps.options,
+        fieldProps.options?.[0]?.iso2 ? "iso2" : "id",
+    );
 
     return (
         <Controller
