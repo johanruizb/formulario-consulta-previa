@@ -20,25 +20,31 @@ import react from "@vitejs/plugin-react-swc";
 // dependenciesList.push("@popperjs");
 // // dependenciesList.push("@emotion");
 
-const manualChunks = (id) => {
-    if (id.endsWith(".css")) return "styles__css";
-    else if (id.includes("node_modules")) {
-        const libraryName = id.includes("@mui")
-            ? id.match(/node_modules\/(.*?)\/(.*?)\//)[2]
-            : id.match(/node_modules\/(.*?)\//)[1];
+const manualChunks = () =>
+    // id
+    {
+        return "vendor";
+        // if (id.endsWith(".css")) return "styles__css";
+        // else if (id.includes("node_modules")) {
+        //     const libraryName = id.includes("@mui")
+        //         ? id.match(/node_modules\/(.*?)\/(.*?)\//)[2]
+        //         : id.match(/node_modules\/(.*?)\//)[1];
 
-        if (libraryName.includes("react") || libraryName.includes("emotion"))
-            return "vendor_react";
+        //     if (libraryName.includes("react") || libraryName.includes("emotion"))
+        //         return "vendor_react";
 
-        return `vendor_${libraryName}`;
-    }
-};
+        //     return `vendor_${libraryName}`;
+        // }
+    };
 
 // export { manualChunks };
 
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [react()],
+    server: {
+        allowedHosts: ["registro.johanruizb.xyz"],
+    },
     build: {
         rollupOptions: {
             output: {
