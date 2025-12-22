@@ -3,8 +3,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 import PropTypes from "prop-types";
 
-import { Controller, useFormContext } from "react-hook-form";
 import { useMemo } from "react";
+import { Controller, useFormContext } from "react-hook-form";
 
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -44,20 +44,7 @@ export default function BirthdayField({ slotProps }) {
         formRef,
     } = slotProps;
 
-    // const devProps = isDevelopment
-    //     ? {
-    //           endAdornment: (
-    //               <Typography variant="caption">{renderCount}</Typography>
-    //           ),
-    //       }
-    //     : {};
-
-    // const fieldPropsWithDev = {
-    //     InputProps: {
-    //         ...devProps,
-    //         ...InputProps,
-    //     },
-    // };
+    const { required } = controllerProps.rules?.required?.value || {};
 
     return (
         <Controller
@@ -92,9 +79,9 @@ export default function BirthdayField({ slotProps }) {
                                 name: field.name,
                                 id: field.name,
                                 fullWidth: true,
+                                required: Boolean(required),
                                 error: Boolean(error?.type || error?.types),
                                 helperText: error?.message ?? " ",
-                                // ...fieldPropsWithDev,
                                 InputProps: {
                                     endAdornment: (
                                         <YearCount date={field.value} />
