@@ -11,18 +11,46 @@ import {
 } from "@mui/material/styles";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { Profiler, StrictMode } from "react";
+import React, { Profiler, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+    createBrowserRouter,
+    createRoutesFromChildren,
+    matchRoutes,
+    RouterProvider,
+    useLocation,
+    useNavigationType,
+} from "react-router-dom";
 import { SWRConfig } from "swr";
 import App from "./App.jsx";
 import { AlertProvider } from "./contexts/AlertContext.jsx";
 import customTheme from "./theme/index.jsx";
+import * as Sentry from "@sentry/react";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
+
+Sentry.init({
+    dsn: "https://3cc4aae5c0944bda8fa9c4f7e613e0c4@glitchtip-o00w44cssko8s8sgos84os0k.johanruizb.xyz/3",
+    environment: import.meta.env.PROD ? "production" : "development",
+    tracesSampleRate: 1,
+    integrations: [
+        Sentry.reactRouterV6BrowserTracingIntegration({
+            useEffect: React.useEffect,
+            useLocation: useLocation,
+            useNavigationType: useNavigationType,
+            createRoutesFromChildren: createRoutesFromChildren,
+            matchRoutes: matchRoutes,
+        }),
+    ],
+});
 
 const router = createBrowserRouter([
     {
         path: "/*",
-        element: <App />,
+        element: (
+            <ErrorBoundary>
+                <App />
+            </ErrorBoundary>
+        ),
     },
 ]);
 
@@ -46,7 +74,7 @@ createRoot(document.getElementById("root")).render(
                                             : Promise.reject({
                                                   status: res.status,
                                                   statusText: res.statusText,
-                                              }),
+                                              })
                                     ),
                             }}
                         >
@@ -58,5 +86,5 @@ createRoot(document.getElementById("root")).render(
                 </LocalizationProvider>
             </ThemeProvider>
         </Profiler>
-    </StrictMode>,
+    </StrictMode>
 );
