@@ -1,3 +1,7 @@
+---
+applyTo: "/home/jr0237/Documentos/consulta-previa-registro/consulta-previa/**"
+---
+
 # Consulta Previa Frontend - AI Coding Guidelines
 
 ## 🔴 Reglas Críticas
@@ -11,15 +15,15 @@
 
 **React 18 + Vite** (puerto 7153) → Build a `../consulta-previa-proxy`
 
-| Carpeta | Propósito |
-|---------|-----------|
-| `src/components/` | Componentes UI reutilizables |
-| `src/pages/` | Vistas/rutas principales |
-| `src/hooks/` | Custom hooks |
-| `src/services/` | API calls (enrollmentService.js) |
-| `src/contexts/` | React Context providers |
-| `src/config/` | Configuración (courseAssets, validationRules) |
-| `src/theme/` | MUI theming |
+| Carpeta           | Propósito                                     |
+| ----------------- | --------------------------------------------- |
+| `src/components/` | Componentes UI reutilizables                  |
+| `src/pages/`      | Vistas/rutas principales                      |
+| `src/hooks/`      | Custom hooks                                  |
+| `src/services/`   | API calls (enrollmentService.js)              |
+| `src/contexts/`   | React Context providers                       |
+| `src/config/`     | Configuración (courseAssets, validationRules) |
+| `src/theme/`      | MUI theming                                   |
 
 ## Stack Principal
 
@@ -33,18 +37,25 @@
 ## Patrones
 
 ### Data Fetching (SWR)
+
 ```javascript
 import useSWR from "swr";
 const { data, error, isLoading } = useSWR(url, fetcher);
 ```
 
 ### Formularios
+
 ```javascript
 import { useForm } from "react-hook-form";
-const { register, handleSubmit, formState: { errors } } = useForm();
+const {
+    register,
+    handleSubmit,
+    formState: { errors },
+} = useForm();
 ```
 
 ### Componentes MUI
+
 - Usar MUI Joy para componentes principales
 - MUI Material para componentes específicos
 - Consultar mui-mcp para documentación actualizada
