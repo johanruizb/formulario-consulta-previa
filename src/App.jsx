@@ -9,7 +9,6 @@ import "./App.css";
 import FormularioDiplomado from "./pages/Form";
 
 const ErrorNotFound = lazy(() => import("./pages/Error/404"));
-const ErrorBoundaryTest = lazy(() => import("./components/ErrorBoundaryTest"));
 
 function App() {
     const { isActive, isLoading } = useEnrollmentStatus();
