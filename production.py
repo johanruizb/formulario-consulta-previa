@@ -44,9 +44,19 @@ def create_github_pr():
             print(f"✅ Pull request creado exitosamente: {pr_data['html_url']}")
             return True
         elif response.status_code == 422:
-            # Esto puede ocurrir si ya existe un PR o no hay diferencias
-            error_message = response.json().get("message", "Error desconocido")
+            body = response.json()
+            error_message = body.get("message", "Error desconocido")
+            errors = body.get("errors", [])
             print(f"⚠️  No se pudo crear el PR: {error_message}")
+            for err in errors:
+                detail = err.get("message", err)
+                print(f"   → {detail}")
+                if "already exists" in str(detail).lower():
+                    existing_url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
+                    params = {"head": f"{owner}:render-preview", "base": "render", "state": "open"}
+                    existing = requests.get(existing_url, headers=headers, params=params)
+                    if existing.status_code == 200 and existing.json():
+                        print(f"   PR existente: {existing.json()[0]['html_url']}")
             return False
         else:
             print(f"❌ Error al crear el pull request: {response.status_code}")
