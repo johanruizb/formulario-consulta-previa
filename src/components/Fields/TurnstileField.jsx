@@ -1,7 +1,7 @@
 import { Turnstile } from "@marsidev/react-turnstile";
 import Box from "@mui/material/Box";
 import FormHelperText from "@mui/material/FormHelperText";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import PropTypes from "prop-types";
 import { useController, useFormContext } from "react-hook-form";
 
