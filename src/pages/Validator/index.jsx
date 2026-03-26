@@ -16,7 +16,6 @@ import * as Sentry from "@sentry/react";
 import PropTypes from "prop-types";
 import { Fragment, useCallback, useRef, useState } from "react";
 import { FormProvider, useFormContext } from "react-hook-form";
-import { FORM_FIELDS_LABELS } from "../../components/constant";
 import { getBanner, getFooter } from "../../config/courseAssets";
 import { useAlert } from "../../hooks/alert/useAlertNew";
 import useSmall from "../../hooks/breakpoint/useSmall";
@@ -31,7 +30,7 @@ import {
     serializeFormDataForSentry,
 } from "../../utils/sentry";
 import useFieldForm from "../Form/constant";
-import { scrollIntoError } from "../Form/functions";
+import { getFormErrorFields, scrollIntoError } from "../Form/functions";
 import ValidatorFields from "./constants";
 
 const DEFAULT_MESSAGE = "Por favor, ingresa el número de tu cédula";
@@ -387,26 +386,12 @@ function Validator({ state }) {
         [setLoading, showAlert, onCancel],
     );
 
-    const onError = (error) => {
-        const keys = Object.keys(error);
-        let fields = keys
-            // .slice(0, 2)
-            .map((key) => FORM_FIELDS_LABELS[key])
-            .join(", ");
-
-        if (keys.length >= 3) {
-            // fields = `${fields}... y ${keys.length - 2} más`;
-            fields = `${fields}`;
-        }
-        showAlert({
-            message: "Por favor verifica los campos: \n" + fields,
-            error: true,
-            title: "El formulario contiene errores",
-        });
-        scrollIntoError(keys, formRef);
-    };
-
     const { fields } = useFieldForm(methods, registered);
+
+    const onError = (error) => {
+        showAlert(getFormErrorFields(error, fields));
+        scrollIntoError(Object.keys(error), formRef);
+    };
 
     return (
         <Dialog fullScreen open>

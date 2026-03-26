@@ -1,6 +1,5 @@
 import BasicTextField from "../../components/Fields/TextField";
-import TurnstileField from "../../components/Fields/TurnstileField";
-import isProduction from "../../utils/isProduction";
+import HCaptchaField from "../../components/Fields/HCaptchaField";
 import { replaceAllSpaces } from "../Form/functions";
 
 const ValidatorFields = [
@@ -33,10 +32,8 @@ const ValidatorFields = [
         },
     },
     {
-        Component: TurnstileField,
-        siteKey: isProduction
-            ? "0x4AAAAAAB2McbF4i64uJyTJ"
-            : "1x00000000000000000000AA",
+        Component: HCaptchaField,
+        siteKey: import.meta.env.VITE_HCAPTCHA_SITE_KEY,
         gridless: true,
     },
 ];

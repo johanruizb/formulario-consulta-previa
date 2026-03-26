@@ -17,7 +17,6 @@ import * as Sentry from "@sentry/react";
 import dayjs from "dayjs";
 import { Fragment, lazy, Suspense, useCallback, useRef, useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
-import { FORM_FIELDS_LABELS } from "../../components/constant";
 import Redirect from "../../components/Form/Redirect";
 import {
     ErrorState,
@@ -40,7 +39,7 @@ import {
 } from "../../utils/sentry";
 import getTimeout from "../../utils/timeout";
 import { default as useFieldForm } from "./constant";
-import { scrollIntoError } from "./functions";
+import { getFormErrorFields, scrollIntoError } from "./functions";
 const Validator = lazy(() => import("../Validator/index"));
 
 export default function FormularioDiplomado() {
@@ -279,31 +278,18 @@ function FullScreenDialog() {
         [setSending, showAlert],
     );
 
-    const onError = useCallback(
-        (error) => {
-            const keys = Object.keys(error);
-            let fields = keys
-                // .slice(0, 2)
-                .map((key) => FORM_FIELDS_LABELS[key])
-                .join(", ");
-
-            if (keys.length >= 3) {
-                fields = `${fields}`;
-            }
-            showAlert({
-                message: "Por favor verifica los campos: \n" + fields,
-                error: true,
-                title: "El formulario contiene errores",
-            });
-            scrollIntoError(keys, formRef);
-        },
-        [showAlert, formRef],
-    );
-
     const Banner = getBanner("diplomado", small);
     const Footer = getFooter("diplomado", small);
 
     const { fields } = useFieldForm(methods);
+
+    const onError = useCallback(
+        (error) => {
+            showAlert(getFormErrorFields(error, fields));
+            scrollIntoError(Object.keys(error), formRef);
+        },
+        [showAlert, formRef, fields],
+    );
 
     return (
         <Fragment>

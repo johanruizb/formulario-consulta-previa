@@ -13,17 +13,17 @@ import Typography from "@mui/material/Typography";
 import { Fragment, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
-import { FORM_FIELDS_LABELS } from "../../components/constant";
-import {
-    getBanner,
-    getButtonsFooter,
-    getFooter,
-} from "../../config/courseAssets";
 import { useAlert } from "../../hooks/alert/useAlertNew";
 import useSmall from "../../hooks/breakpoint/useSmall";
 import INSCRIPCION from "../../hooks/request/inscripcion";
 import isProduction from "../../utils/isProduction";
-import { scrollIntoError } from "../Form/functions";
+import {
+    getBanner,
+    getButtonsFooter,
+    getFooter,
+    getFormErrorFields,
+    scrollIntoError,
+} from "../Form/functions";
 import WaitListFields from "./constants";
 
 function ListaEspera() {
@@ -87,22 +87,8 @@ function ListaEspera() {
     };
 
     const onError = (error) => {
-        const keys = Object.keys(error);
-        let fields = keys
-            // .slice(0, 2)
-            .map((key) => FORM_FIELDS_LABELS[key])
-            .join(", ");
-
-        if (keys.length >= 3) {
-            // fields = `${fields}... y ${keys.length - 2} más`;
-            fields = `${fields}`;
-        }
-        showAlert({
-            message: "Por favor verifica los campos: \n" + fields,
-            error: true,
-            title: "El formulario contiene errores",
-        });
-        scrollIntoError(keys, formRef);
+        showAlert(getFormErrorFields(error, WaitListFields));
+        scrollIntoError(Object.keys(error), formRef);
     };
 
     return (

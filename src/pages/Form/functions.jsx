@@ -1,9 +1,33 @@
+import { FORM_FIELDS_LABELS } from "../../components/constant";
+
 // Re-exportar funciones de assets desde config
 export {
     getBanner,
     getButtonsFooter,
     getFooter,
 } from "../../config/courseAssets";
+
+export function getFormErrorFields(errors, fields = []) {
+    const keys = Object.keys(errors);
+
+    const fieldLabels = {};
+    for (const field of fields) {
+        const name = field.controller?.name;
+        const label = field.field?.label;
+        if (name && label) fieldLabels[name] = label;
+    }
+
+    const labels = keys
+        .map((key) => fieldLabels[key] ?? FORM_FIELDS_LABELS[key] ?? key)
+        .filter(Boolean)
+        .join(", ");
+
+    return {
+        message: "Por favor verifica los campos: \n" + labels,
+        error: true,
+        title: "El formulario contiene errores",
+    };
+}
 
 const sortedFields = [
     "firstName",

@@ -8,7 +8,7 @@ import HighlightedSelect from "../../components/Fields/HighlightedSelect";
 import PhoneNumber from "../../components/Fields/PhoneNumber";
 import BasicSelect from "../../components/Fields/Select";
 import BasicTextField from "../../components/Fields/TextField";
-import TurnstileField from "../../components/Fields/TurnstileField";
+import HCaptchaField from "../../components/Fields/HCaptchaField";
 import DocumentImage from "../../components/Form/DocumentImage";
 import OtroCampo from "../../components/Form/OtroCampo";
 import { replaceAllSpaces, toUpperCase } from "./functions";
@@ -802,6 +802,11 @@ function useFieldForm(methods, isEditing = false) {
                       },
                   },
                   {
+                      Component: HCaptchaField,
+                      siteKey: import.meta.env.VITE_HCAPTCHA_SITE_KEY,
+                      gridless: true,
+                  },
+                  {
                       Component: CheckboxField,
                       controller: {
                           name: "processingOfPersonalData",
@@ -814,19 +819,10 @@ function useFieldForm(methods, isEditing = false) {
                               },
                           },
                       },
-                      size: 12,
                       gridless: true,
                   },
               ]
             : []),
-
-        {
-            Component: TurnstileField,
-            siteKey: isProduction
-                ? "0x4AAAAAAB2McbF4i64uJyTJ"
-                : "1x00000000000000000000AA",
-            gridless: true,
-        },
     ];
 
     let fields = [...allFields];

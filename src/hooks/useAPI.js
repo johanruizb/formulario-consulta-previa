@@ -47,10 +47,15 @@ export function useAPI(endpoint, options = {}) {
  * Hook específico para obtener el estado de inscripciones
  */
 export function useEnrollmentStatus() {
-    const { data, error, isLoading, mutate } = useAPI("/inscripcion/estado");
+    const { data, error, isLoading, mutate } = useAPI("/inscripcion/estado", {
+        swrConfig: {
+            revalidateOnFocus: true, // Revalidar al enfocar para obtener estado actualizado
+        },
+    });
 
     return {
         status: data,
+        enrollmentState: data?.estado,
         isActive: Boolean(data?.activo),
         error,
         isLoading,
