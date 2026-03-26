@@ -91,6 +91,7 @@ const FORM_FIELDS_LABELS = {
     processingOfPersonalData:
         "Autorización para el tratamiento de datos personales",
     "cf-turnstile-response": "Verificación Captcha",
+    "h-captcha-response": "Verificación Captcha",
     cursos_inscritos: "Curso al que se inscribe",
 };
 
